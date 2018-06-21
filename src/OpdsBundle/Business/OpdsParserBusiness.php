@@ -34,10 +34,10 @@ class OpdsParserBusiness
     const ODPS_REL_SORT = 'http://opds-spec.org/sort';
     const ODPS_REL_SUBSCRIPTIONS = 'http://opds-spec.org/subscriptions';
     const ODPS_REL_THUMBNAIL = 'http://opds-spec.org/image/thumbnail';
-    
+
     const ODPS_TYPE_KIND_NAVIGATION = 'kind=navigation';
     const ODPS_TYPE_SEARCH = 'application/opensearchdescription+xml';
-                        
+
     /**
      * 
      * @param string $file file path
@@ -107,10 +107,10 @@ class OpdsParserBusiness
 
             return $this->parseEntry($xmldata);
         }
-        
+
         return $this->parseFeed($xmldata);
     }
-    
+
     /**
      * 
      * @param \SimpleXMLElement $xmldata
@@ -149,69 +149,12 @@ class OpdsParserBusiness
         $feed = new Feed();
         $feed->setTitle((string) $xmldata->title);
         if (isset($xmldata->updated)) {
-            $feed->setModified(\DateTime::createFromFormat(\DateTime::ISO8601, $xmldata->updated));
+            $feed->setUpdatedAt(\DateTime::createFromFormat(\DateTime::ISO8601, $xmldata->updated));
         }
         $feed->setPagination($this->parsePagination($xmldata));
 
         foreach ($xmldata->entry as $entry) {
             $this->parseFeedEntry($entry, $feed);
-            
-            /*
-            $isNavigation = true;
-            $collectionLink = new Link();
-
-            foreach ($entry->link as $link) {
-                if (isset($link['rel'])) {
-                    $rel = (string) $link['rel'];
-                    // Check is navigation or acquisition.
-                    if (strpos($rel, self::ODPS_REL_ACQUISITION) === 0) {
-                        $isNavigation = false;
-                    }
-                    // Check if there is a collection.
-                    if (($rel === 'collection') || ($rel === self::ODPS_REL_GROUP)) {
-                        $collectionLink->setRel('collection');
-                        $collectionLink->setHref($link->href);
-                        $collectionLink->setTitle($link->title);
-                    }
-                }
-            }
-
-            if (!$isNavigation) {
-                $publication = $this->parseEntry($entry);
-                // Checking if this publication need to go into a group or in publications.
-                if (!empty($collectionLink->getHref())) {
-                    // @TODO addPublicationInGroup(feed, publication, collectionLink)
-                    
-                } else {
-                    $feed->addPublication($publication);
-                }
-            } else {
-                $newLink = new Link();
-
-                if (isset($entry->title)) {
-                    $newLink->setTitle((string) $entry->title);
-                }
-                if (isset($entry->link['rel'])) {
-                    $newLink->setRel((string) $entry->link['rel']);
-                }
-
-                // facetElementCountStr
-                foreach ($entry->children('thr', true) as $key => $value) {
-                    if ($key !== 'count') { // total non utilisé dans http://opds-spec.org/specs/opds-catalog-1-1-20110627
-                        continue;
-                    }
-                    
-                    $newLink->getPropertieList()['numberOfItems'] = (int) $value;
-                }
-                $newLink->setTypeLink((string) $entry->link['type']);
-                $newLink->setHref((string) $entry->link['href']);
-                // Check collection link
-                if (!empty($collectionLink->getHref())) {
-                    // @TODO addNavigationInGroup(feed, newLink, collectionLink)
-                } else {
-                    $feed->addNavigation($newLink);
-                }
-            }*/
         }
 
         foreach ($xmldata->link as $link) {
@@ -263,7 +206,7 @@ class OpdsParserBusiness
                 }
             }
             $feed->addFacet($link);
-            
+
             return;
         }
 
@@ -338,62 +281,50 @@ class OpdsParserBusiness
         $metadata = new Metadata();
         $publication->setMetadata($metadata);
 
-        if (isset($entry->title)) {
-            /* if metadata.multilangTitle == nil {
-              metadata.multilangTitle = MultilangString()
-              }
-              metadata.multilangTitle?.singleString = */
-            $metadata->setTitle((string) $entry->title);
-        }
+        // champs obligatoires
+        $metadata->setTitle((string) $entry->title);
+        $publication->setIdentifier((string) $entry->id);
+        $metadata->setUpdatedAt(\DateTime::createFromFormat(\DateTime::ISO8601, $entry->updated));
 
-        if (isset($entry->identifier)) {
-            $publication->setIdentifier((string) $entry->identifier);
-//            $metadata->setIdentifier((string) $entry->identifier);
-        } else if (isset($entry->id)) {
-            $publication->setIdentifier((string) $entry->id);
-//            $metadata->setIdentifier((string) $entry->id);
-        }
-
+        //----
         // Extract dcterms data
         foreach ($entry->children('dcterms', true) as $key => $value) {
-  //  dump('dcterms', $key, $value);
             switch ($key) {
                 case 'language':
                     $metadata->setLanguage((string) $value);
-                    //entry["dcterms:language"].all {
-                    //metadata.languages = languages.map({ $0.string })
                     break;
                 case 'publisher':
                     $contributor = new Contributor();
-                    //$contributor.multilangName.singleString = publisher
                     $contributor->setName((string) $value);
                     $metadata->addPublisher($contributor);
                     break;
                 case 'extent':
-                    $metadata->setExtent((string) $value); // @TODO plusieurs extent : taille & nb pages
+                    $extent = (string) $value;
+                    if (preg_match('/^\d+ [a-zA-Z]o$/', $extent)) {
+                        $metadata->setFileSize($extent);
+                    } else {
+                        $metadata->setNumberPages($extent);
+                    }
                     break;
                 case 'identifier': // isbn @TODO add ?
                     $metadata->setIdentifier((string) $value);
                     break;
                 case 'source': // isbn @TODO add ?
-                    //$metadata->setSource((string) $value);
+                    $metadata->setSource((string) $value);
                     break;
                 case 'issued': // date @TODO add ?
-                  //  $metadata->setSource((string) $value);
+                    $metadata->setIssuedAt(\DateTime::createFromFormat('Y-m-d', $value));
                     break;
             }
         }
-        if (isset($entry->updated)) {
-            $metadata->setModified(\DateTime::createFromFormat(\DateTime::ISO8601, $entry->updated));
-        }
-        // Publication date.
+
         if (isset($entry->published)) {
-            $metadata->setPublicationDate((string) $entry->published);
+            $metadata->setPublicationDate(\DateTime::createFromFormat(\DateTime::ISO8601, $entry->published));
         }
-        // Rights.
         if (isset($entry->rights)) {
-            $metadata->setRights($entry->rights);
+            $metadata->setRights((string) $entry->rights);
         }
+
         // TODO SERIES -------------
         // Categories.
         if (count($entry->category)) {
@@ -405,7 +336,7 @@ class OpdsParserBusiness
                 $metadata->addSubject($subject);
             }
         }
-        /// Contributors.
+
         // Author.
         if (count($entry->author)) {
             foreach ($entry->author as $author) {
@@ -415,66 +346,64 @@ class OpdsParserBusiness
                     $link->setHref((string) $author->uri);
                     $contributor->addLink($link);
                 }
-                //contributor.multilangName.singleString = author["name"].value
                 $contributor->setName((string) $author->name);
                 $metadata->addAuthor($contributor);
             }
         }
+
         // Description.
         if (isset($entry->content)) {
             $metadata->setDescription((string) $entry->content);
-        } else if (isset($entry->summary)) {
+        } elseif (isset($entry->summary)) {
             $metadata->setDescription((string) $entry->summary);
         }
 
         // Links.
         if (count($entry->link)) {
-            foreach ($entry->link as $link) {
-                $newLink = new Link();
+            foreach ($entry->link as $xmlLink) {
+                $link = new Link();
 
-                $newLink->setHref((string) $link['href']);
-                $newLink->setTitle((string) $link['title']);
-                $newLink->setTypeLink((string) $link['type']);
-                if (isset($link['rel'])) {
-                    $newLink->setRel((string) $link['rel']);
-                }
-                // Indirect acquisition check. (Recursive)
-                $indirectAcquisitions = $link['opds:indirectAcquisition'];
-                if (isset($indirectAcquisitions)) {
-                    //if let indirectAcquisitions = link["opds:indirectAcquisition"].all,
-                    //!indirectAcquisitions.isEmpty
-                    //newLink.properties.indirectAcquisition = parseIndirectAcquisition(children: indirectAcquisitions)
-                    //TODO 
-                    //assert(false);
-                }
-                // Extract opds data
-                
-                foreach ($link->children('opds', true) as $key => $value) {
-//                    dump($link);die;
-//    dump('odps', $key, $value); /*##/
-                    switch ($key) {
-                        case 'price':
-                            $price = (string) $value;
-                            $att = iterator_to_array($value->attributes());
-                            $currency = (string) $att['currencycode'];
-                            $newPrice = new Price();
-                            $newPrice->setCurrency($currency);
-                            $newPrice->setPrice($price);
-                            $metadata->setPrice($newPrice);
-//                            $newLink->getPropertieList()['price'] = $newPrice;
-                            break;
-                    }
+                $link->setHref((string) $xmlLink['href']);
+                $link->setTitle((string) $xmlLink['title']);
+                $link->setTypeLink((string) $xmlLink['type']);
+
+                if (isset($xmlLink['rel'])) {
+                    $link->setRel((string) $xmlLink['rel']);
                 }
 
-                if (isset($link['rel'])) {
-                    $rel = (string) $link['rel'];
-                    if (($rel == 'collection') || ( $rel == self::ODPS_REL_GROUP)) {
-                        // nothing to do
-                    } elseif (($rel == self::ODPS_REL_IMAGE) || ( $rel == self::ODPS_REL_THUMBNAIL)) {
-                        $publication->addImage($newLink);
-                    } else {
-                        $publication->addLink($newLink);
+                if (!empty($link->getRel()) && $link->getRel() === self::ODPS_REL_ACQUISITION_BUY) {
+                    $price = new Price();
+
+                    foreach ($xmlLink->children('opds', true) as $key => $value) {
+                        $attributeList = $value->attributes();
+
+                        if ($key === 'indirectAcquisition') {
+                            $price->setFormat((string) $attributeList['type']);
+                            continue;
+                        }
+
+                        if ($key !== 'price') {
+                            continue;
+                        }
+
+                        $price->setPrice((string) $value);
+                        $price->setCurrency((string) $attributeList['currencycode']);
                     }
+
+                    $metadata->setPrice($price);
+                }
+
+                if (!isset($xmlLink['rel'])) {
+                    continue;
+                }
+
+                $rel = (string) $xmlLink['rel'];
+                if (($rel == 'collection') || ( $rel == self::ODPS_REL_GROUP)) {
+                    // nothing to do
+                } elseif (($rel == self::ODPS_REL_IMAGE) || ( $rel == self::ODPS_REL_THUMBNAIL)) {
+                    $publication->addImage($link);
+                } else {
+                    $publication->addLink($link);
                 }
             }
         }

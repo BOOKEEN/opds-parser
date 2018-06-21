@@ -12,7 +12,7 @@ class Feed
     /**
      * @var \DateTime
      */
-    private $modified;
+    private $updatedAt;
 
     /**
      * @var Navigation[]
@@ -33,7 +33,11 @@ class Feed
      * @var Link[]
      */
     private $collectionLinkList = array();
-    private $collectionPublicationList = array(); //@TODO
+    
+    /**
+     * @var Publication
+     */
+    private $collectionPublicationList = array();
     
     /**
      *
@@ -165,9 +169,9 @@ class Feed
     /**
      * @return \DateTime
      */
-    function getModified()
+    function getUpdatedAt()
     {
-        return $this->modified;
+        return $this->updatedAt;
     }
 
     /**
@@ -203,11 +207,11 @@ class Feed
     }
 
     /**
-     * @param \DateTime $modified
+     * @param \DateTime $updatedAt
      */
-    function setModified(\DateTime $modified)
+    function setUpdatedAt(\DateTime $updatedAt)
     {
-        $this->modified = $modified;
+        $this->updatedAt = $updatedAt;
     }
 
     /**

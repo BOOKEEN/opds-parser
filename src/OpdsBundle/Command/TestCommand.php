@@ -49,6 +49,7 @@ class TestCommand extends ContainerAwareCommand
                 break;
             case 3:
                 $url = 'http://www.feedbooks.com/store/top.atom?category=FBFIC027000';
+//                $url = 'http://www.feedbooks.com/books/top.atom?category=FBFIC029000&amp;amp;lang=fr';
                 break;
             case 4:
                // $url = 'http://www.feedbooks.com/item/2707366.atom';
@@ -57,7 +58,8 @@ class TestCommand extends ContainerAwareCommand
         }
         
         $r = $this->odpsParser->parseURL($url, array('Accept-Language: fr-fr,fr;'));
-//        dump($r);
+        //$r->setPublicationList(array());
+        dump($r);
         
         $output->writeln('END ---------');
     }

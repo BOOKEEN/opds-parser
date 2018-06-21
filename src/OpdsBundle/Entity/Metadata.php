@@ -6,12 +6,30 @@ class Metadata
 {
     private $source;
     
+    private $numberPages;
+    private $fileSize;
+    
+    /**
+     * @var \DateTime
+     */
+    private $issuedAt;
+    
     /**
      * @var Price
      */
     private $price;
     
-    function getSource()
+    function getIssuedAt()
+    {
+        return $this->issuedAt;
+    }
+
+    function setIssuedAt(\DateTime $issuedAt)
+    {
+        $this->issuedAt = $issuedAt;
+    }
+
+        function getSource()
     {
         return $this->source;
     }
@@ -31,7 +49,27 @@ class Metadata
         $this->price = $price;
     }
 
-    
+    function getNumberPages()
+    {
+        return $this->numberPages;
+    }
+
+    function getFileSize()
+    {
+        return $this->fileSize;
+    }
+
+    function setNumberPages($numberPages)
+    {
+        $this->numberPages = $numberPages;
+    }
+
+    function setFileSize($fileSize)
+    {
+        $this->fileSize = $fileSize;
+    }
+
+        
         
     //-----------
     /**
@@ -46,11 +84,11 @@ class Metadata
     private $description;
 
     /**
-     * Taille du fichier
+     * Extent non déterminé
      *
      * @var  string
      */
-    private $extent;
+//    private $extent;
 
     /**
      * @var string
@@ -66,10 +104,10 @@ class Metadata
      *
      * @var \DateTime
      */
-    private $modified;
+    private $updatedAt;
 
     /**
-     * @var string
+     * @var DateTime
      */
     private $publicationDate;
 
@@ -105,10 +143,10 @@ class Metadata
     /**
      * @return string
      */
-    function getExtent()
-    {
-        return $this->extent;
-    }
+//    function getExtent()
+//    {
+//        return $this->extent;
+//    }
 
     /**
      * @return string
@@ -129,13 +167,13 @@ class Metadata
     /**
      * @return \DateTime
      */
-    function getModified()
+    function getUpdatedAt()
     {
-        return $this->modified;
+        return $this->updatedAt;
     }
 
     /**
-     * @return string
+     * @return DateTime
      */
     function getPublicationDate()
     {
@@ -195,10 +233,10 @@ class Metadata
      * 
      * @param string $extent
      */
-    function setExtent($extent)
-    {
-        $this->extent = $extent;
-    }
+//    function setExtent($extent)
+//    {
+//        $this->extent = $extent;
+//    }
 
     /**
      * @param string $identifier
@@ -217,15 +255,15 @@ class Metadata
     }
 
     /**
-     * @param \DateTime $modified
+     * @param \DateTime $updatedAt
      */
-    function setModified(\DateTime $modified)
+    function setUpdatedAt(\DateTime $updatedAt)
     {
-        $this->modified = $modified;
+        $this->updatedAt = $updatedAt;
     }
 
     /**
-     * @param string $publicationDate
+     * @param \DateTime $publicationDate
      */
     function setPublicationDate($publicationDate)
     {

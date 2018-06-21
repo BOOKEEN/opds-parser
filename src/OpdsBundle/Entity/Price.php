@@ -13,11 +13,24 @@ class Price
      * @var string 
      */
     private $price;
+    
+    private $format;
+    
+    function getFormat()
+    {
+        return $this->format;
+    }
 
+    function setFormat($format)
+    {
+        $this->format = $format;
+    }
+
+    
     /**
      * @var array 
      */
-    private $propertieList = array();
+//    private $propertieList = array();
 
     /**
      * @return string
@@ -38,10 +51,10 @@ class Price
     /**
      * @return array
      */
-    function getPropertieList()
-    {
-        return $this->propertieList;
-    }
+//    function getPropertieList()
+//    {
+//        return $this->propertieList;
+//    }
 
     /**
      * @param string $currency
@@ -62,9 +75,9 @@ class Price
     /**
      * @param array $propertieList
      */
-    function setPropertieList($propertieList)
-    {
-        $this->propertieList = $propertieList;
-    }
+//    function setPropertieList($propertieList)
+//    {
+//        $this->propertieList = $propertieList;
+//    }
 
 }
