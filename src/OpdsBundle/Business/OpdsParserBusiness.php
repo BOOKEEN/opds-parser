@@ -9,6 +9,7 @@ use OpdsBundle\Entity\Metadata;
 use OpdsBundle\Entity\OpdsMetadata;
 use OpdsBundle\Entity\Price;
 use OpdsBundle\Entity\Publication;
+use OpdsBundle\Entity\SearchInfo;
 use OpdsBundle\Entity\Subject;
 use OpdsBundle\Exception\OpdsParserNotFoundException;
 use OpdsBundle\Exception\OpdsParserNoTitleException;
@@ -98,30 +99,29 @@ class OpdsParserBusiness
      * 
      * @param \SimpleXMLElement $xmldata
      *
-     * @return OpdsMetadata
+     * @return OpdsMetadata|null
      */
-    private function parseOpdsMetadata($xmldata)
+    private function parsePagination($xmldata)
     {
-        $metadata = new OpdsMetadata();
-
-        if (isset($xmldata->updated)) {
-            $metadata->setModified(\DateTime::createFromFormat(\DateTime::ISO8601, $xmldata->updated));
-        }
+        $pagination = new SearchInfo();
+        $paginated = false;
 
         foreach ($xmldata->children('opensearch', true) as $key => $value) {
             switch ($key) {
                 case 'totalResults':
-                    $metadata->setNumberOfItem((string) $value); //@TODO pas int ?
+                    $pagination->setNumberOfItem((int) $value);
+                    $paginated = true;
                     break;
                 case 'itemsPerPage':
-                    $metadata->setItemsPerPage((string) $value); //@TODO pas int ?
+                    $pagination->setItemsPerPage((int) $value);
+                    $paginated = true;
                     break;
             }
         }
-        
-        return $metadata;
+
+        return $paginated ? $pagination : null;
     }
-    
+
     /**
      * 
      * @param \SimpleXMLElement $xmldata
@@ -132,7 +132,12 @@ class OpdsParserBusiness
     {
         $feed = new Feed();
         $feed->setTitle((string) $xmldata->title);
-        $feed->setMetadata($this->parseOpdsMetadata($xmldata));
+
+        if (isset($xmldata->updated)) {
+            $feed->setModified(\DateTime::createFromFormat(\DateTime::ISO8601, $xmldata->updated));
+        }
+
+        $feed->setSearchInfo($this->parsePagination($xmldata));
 
         if (!isset($xmldata->entry)) {
 
@@ -147,11 +152,11 @@ class OpdsParserBusiness
                 if (isset($link['rel'])) {
                     $rel = (string) $link['rel'];
                     // Check is navigation or acquisition.
-                    if (strncmp($rel, self::ODPS_REF_ACQUISITION, strlen(self::ODPS_REF_ACQUISITION)) == 0) {
+                    if (strpos($rel, self::ODPS_REF_ACQUISITION) === 0) {
                         $isNavigation = false;
                     }
                     // Check if there is a collection.
-                    if (($rel === 'collection') || ($rel == self::ODPS_REF_GROUP)) {
+                    if (($rel === 'collection') || ($rel === self::ODPS_REF_GROUP)) {
                         $collectionLink->setRel('collection');
                         $collectionLink->setHref($link->href);
                         $collectionLink->setTitle($link->title);
@@ -162,11 +167,11 @@ class OpdsParserBusiness
             if (!$isNavigation) {
                 $publication = $this->parseEntry($entry);
                 // Checking if this publication need to go into a group or in publications.
-                if (isset($collectionLink->href)) {
-                    // TODO addPublicationInGroup(feed, publication, collectionLink)
-                    //assert(false);
+                if (!empty($collectionLink->getHref())) {
+                    // @TODO addPublicationInGroup(feed, publication, collectionLink)
+                    
                 } else {
-                    $feed->publications[] = $publication;
+                    $feed->addPublication($publication);
                 }
             } else {
                 $newLink = new Link();
@@ -175,26 +180,22 @@ class OpdsParserBusiness
                     $newLink->setTitle((string) $entry->title);
                 }
                 if (isset($entry->link['rel'])) {
-                    $newLink->setRel((string) $entry->link['rel']); // pourquoi un array
+                    $newLink->setRel((string) $entry->link['rel']);
                 }
 
                 // facetElementCountStr
                 foreach ($entry->children('thr', true) as $key => $value) {
-                    dump('THR', $key, $value);
-                    switch ($key) {
-                        case 'count':
-                            $newLink->getPropertieList()['numberOfItems'] = (int) $value;
-                            //TODO 
-                            assert(false);
-                            break;
+                    if ($key !== 'count') { // total non utilisé dans http://opds-spec.org/specs/opds-catalog-1-1-20110627
+                        continue;
                     }
+                    
+                    $newLink->getPropertieList()['numberOfItems'] = (int) $value;
                 }
                 $newLink->setTypeLink((string) $entry->link['type']);
                 $newLink->setHref((string) $entry->link['href']);
                 // Check collection link
                 if (!empty($collectionLink->getHref())) {
-                    //TODO addNavigationInGroup(feed, newLink, collectionLink)
-                   // assert(false);
+                    // @TODO addNavigationInGroup(feed, newLink, collectionLink)
                 } else {
                     $feed->addNavigation($newLink);
                 }
@@ -202,6 +203,7 @@ class OpdsParserBusiness
         }
 
         $facetGroupName = null;
+        $facetActiveName = null;
         foreach ($xmldata->link as $link) {
             $newLink = new Link();
             $newLink->setHref((string) $link['href']);
@@ -212,30 +214,26 @@ class OpdsParserBusiness
             }
 
             unset($facetGroupName);
+            unset($facetActiveName); //@TODO
             foreach ($link->children('opds', true) as $key => $value) {
-                dump('OPDS', $key, $value);
                 switch ($key) {
                     case 'facetGroup':
                         $facetGroupName = (string) $value;
-                        //TODO 
-                        //assert(false);
+                        break;
+                    case 'activeFacet':
+                        $facetActiveName = true;
                         break;
                 }
             }
-            $facetGroupName = $link['opds:facetGroup'];
-            if (isset($facetGroupName) && isset($newLink->getRelList()[self::ODPS_REF_FACET])) {
+            
+            if (isset($facetGroupName) && !empty($newLink->getRel()) && $newLink->getRel() === self::ODPS_REF_FACET) {
                 foreach ($link->children('thr', true) as $key => $value) {
-                    dump('THR', $key, $value);
-                    switch ($key) {
-                        case 'count':
-                            $newLink->getPropertieList()['numberOfItems'] = (int) $value;
-                            //TODO 
-                            //assert(false);
-                            break;
+                    if ($key !== 'count') { // total non utilisé dans http://opds-spec.org/specs/opds-catalog-1-1-20110627
+                        continue;
                     }
+                    $newLink->getPropertieList()['numberOfItems'] = (int) $value;
                 }
-                //TODO addFacet(feed: feed, to: newLink, named: facetGroupName)
-                //assert(false);
+                // @TODO addFacet(feed: feed, to: newLink, named: facetGroupName)
             } else {
                 $feed->addLink($newLink);
             }

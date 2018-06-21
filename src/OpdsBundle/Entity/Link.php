@@ -90,7 +90,7 @@ class Link
      * 
      * @param string $rel
      */
-    function setRel(array $rel)
+    function setRel($rel)
     {
         $this->rel = $rel;
     }

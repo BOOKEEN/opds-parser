@@ -2,25 +2,20 @@
 
 namespace OpdsBundle\Entity;
 
-class OpdsMetadata
+class SearchInfo
 {
     /**
-     * @var string
+     * @var int
      */
     private $itemsPerPage;
 
     /**
-     * @var \DateTime
-     */
-    private $modified;
-
-    /**
-     * @var string
+     * @var int
      */
     private $numberOfItem;
 
     /**
-     * @return string
+     * @return int
      */
     function getItemsPerPage()
     {
@@ -28,15 +23,7 @@ class OpdsMetadata
     }
 
     /**
-     * @return \DateTime
-     */
-    function getModified()
-    {
-        return $this->modified;
-    }
-
-    /**
-     * @return string
+     * @return int
      */
     function getNumberOfItem()
     {
@@ -44,7 +31,7 @@ class OpdsMetadata
     }
 
     /**
-     * @param string $itemsPerPage
+     * @param int $itemsPerPage
      */
     function setItemsPerPage($itemsPerPage)
     {
@@ -52,15 +39,7 @@ class OpdsMetadata
     }
 
     /**
-     * @param \DateTime $modified
-     */
-    function setModified(\DateTime $modified)
-    {
-        $this->modified = $modified;
-    }
-
-    /**
-     * @param string $numberOfItem
+     * @param int $numberOfItem
      */
     function setNumberOfItem($numberOfItem)
     {

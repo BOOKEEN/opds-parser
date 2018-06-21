@@ -10,9 +10,9 @@ class Feed
     private $linkList = array();
 
     /**
-     * @var OpdsMetadata
+     * @var \DateTime
      */
-    private $metadata;
+    private $modified;
 
     /**
      * @var Link[]
@@ -20,10 +20,82 @@ class Feed
     private $navigationList = array();
 
     /**
+     * @var SearchInfo
+     */
+    private $searchInfo;
+
+    /**
      * @var string
      */
     private $title;
+    
+    private $collectionList = array(); //@TODO
+    private $menuList = array(); //@TODO
+    private $sortList = array(); //@TODO
+    
+    private $facetList = array(); //@TODO
+    /**
+     * @var Publication[]
+     */
+    private $publicationList = array(); //@TODO
+    
+    function getFacetList()
+    {
+        return $this->facetList;
+    }
 
+    function setFacetList($facetList)
+    {
+        $this->facetList = $facetList;
+    }
+
+        function getPublicationList()
+    {
+        return $this->publicationList;
+    }
+
+    function setPublicationList(array $PublicationList)
+    {
+        $this->publicationList = $PublicationList;
+    }
+    
+    function addPublication(Publication $publication)
+    {
+        $this->publicationList[] = $publication;
+    }
+
+        
+    function getCollectionList()
+    {
+        return $this->collectionList;
+    }
+
+    function setCollectionList($collectionList)
+    {
+        $this->collectionList = $collectionList;
+    }
+
+    function getMenuList()
+    {
+        return $this->menuList;
+    }
+
+    function getSortList()
+    {
+        return $this->sortList;
+    }
+
+    function setMenuList($menuList)
+    {
+        $this->menuList = $menuList;
+    }
+
+    function setSortList($sortList)
+    {
+        $this->sortList = $sortList;
+    }
+
+        
     /**
      * @return Link[]
      */
@@ -33,11 +105,19 @@ class Feed
     }
 
     /**
-     * @return OpdsMetadata
+     * @return SearchInfo
      */
-    function getMetadata()
+    function getSearchInfo()
     {
-        return $this->metadata;
+        return $this->searchInfo;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    function getModified()
+    {
+        return $this->modified;
     }
 
     /**
@@ -65,11 +145,19 @@ class Feed
     }
 
     /**
-     * @param OpdsMetadata $metadata
+     * @param SearchInfo|null $searchInfo
      */
-    function setMetadata(OpdsMetadata $metadata)
+    function setSearchInfo($searchInfo)
     {
-        $this->metadata = $metadata;
+        $this->searchInfo = $searchInfo;
+    }
+
+    /**
+     * @param \DateTime $modified
+     */
+    function setModified(\DateTime $modified)
+    {
+        $this->modified = $modified;
     }
 
     /**
