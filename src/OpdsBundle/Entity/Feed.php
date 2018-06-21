@@ -29,7 +29,11 @@ class Feed
      */
     private $title;
     
-    private $collectionList = array(); //@TODO
+    /**
+     * @var Link[]
+     */
+    private $collectionLinkList = array();
+    private $collectionPublicationList = array(); //@TODO
     
     /**
      *
@@ -49,6 +53,37 @@ class Feed
      */
     private $publicationList = array(); //@TODO
     
+    function getCollectionLinkList()
+    {
+        return $this->collectionLinkList;
+    }
+
+    function getCollectionPublicationList()
+    {
+        return $this->collectionPublicationList;
+    }
+
+    function setCollectionLinkList($collectionLinkList)
+    {
+        $this->collectionLinkList = $collectionLinkList;
+    }
+    
+    function addCollectionLink(Link $link)
+    {
+        $this->collectionLinkList[] = $link;
+    }
+
+    function setCollectionPublicationList($collectionPublicationList)
+    {
+        $this->collectionPublicationList = $collectionPublicationList;
+    }
+    
+     function addCollectionPublicationList(Publication $publication)
+    {
+        $this->collectionPublicationList[] = $publication;
+    }
+
+        
     function getFacetList()
     {
         return $this->facetList;
@@ -79,16 +114,6 @@ class Feed
         $this->publicationList[] = $publication;
     }
 
-        
-    function getCollectionList()
-    {
-        return $this->collectionList;
-    }
-
-    function setCollectionList($collectionList)
-    {
-        $this->collectionList = $collectionList;
-    }
 
     function getMenuList()
     {

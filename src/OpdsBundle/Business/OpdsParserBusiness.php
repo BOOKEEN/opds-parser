@@ -282,9 +282,8 @@ class OpdsParserBusiness
      */
     private function parseFeedEntry($xmlEntry, Feed &$feed)
     {
-        $collectionLink = new Link();
-
-        if (count($xmlEntry->link) === 1 && strpos($xmlEntry->link['rel'], self::ODPS_REL_ACQUISITION) !== 0) { // liens de navigation
+        // liens de navigation
+        if (count($xmlEntry->link) === 1 && strpos($xmlEntry->link['rel'], self::ODPS_REL_ACQUISITION) !== 0) {
             $link = new Navigation();
 
             $link->setTitle((string) $xmlEntry->title);
@@ -292,7 +291,7 @@ class OpdsParserBusiness
             $link->setUpdatedAt(\DateTime::createFromFormat(\DateTime::ISO8601, $xmlEntry->updated));
             $link->setTypeLink((string) $xmlEntry->link['type']);
             $link->setHref((string) $xmlEntry->link['href']);
-            
+
             if (isset($xmlEntry->content)) {
                 $link->setContent((string) $xmlEntry->content);
             }
@@ -300,35 +299,28 @@ class OpdsParserBusiness
                 $link->setRel((string) $xmlEntry->link['rel']);
             }
 
-            // Check collection link
-            if (!empty($collectionLink->getHref())) {
-                // @TODO addNavigationInGroup(feed, newLink, collectionLink)
+            if (!empty($link->getRel()) && (($link->getRel() === 'collection') || ($link->getRel() === self::ODPS_REL_GROUP))) {
+                $link->setRel('collection');
+                $feed->addCollectionLink($link);
             } else {
                 $feed->addNavigation($link);
             }
-            
+
             return;
         }
-        
-        ///--------------
+
+        // lien de publication
+        $collection = false;
         foreach ($xmlEntry->link as $link) {
-            if (isset($link['rel'])) {
-                // Check if there is a collection.
-                if (($rel === 'collection') || ($rel === self::ODPS_REL_GROUP)) {
-                    $collectionLink->setRel('collection');
-                    $collectionLink->setHref($link->href);
-                    $collectionLink->setTitle($link->title);
-                }
+            if (isset($link['rel']) && ($link['rel'] === 'collection' || $link['rel'] === self::ODPS_REL_GROUP)) {
+                $collection = true;
+                $link['rel'] = 'collection';
             }
         }
-        ///--------------
-        //
-     // lien de publication
 
         $publication = $this->parseEntry($xmlEntry);
-        // Checking if this publication need to go into a group or in publications.
-        if (!empty($collectionLink->getHref())) {
-            // @TODO addPublicationInGroup(feed, publication, collectionLink)
+        if ($collection) {
+            $feed->addCollectionPublicationList($publication);
         } else {
             $feed->addPublication($publication);
         }
