@@ -42,17 +42,22 @@ class TestCommand extends ContainerAwareCommand
         
         switch ($input->getArgument('numTest')) {
             case 1:
-                $output->writeln('---- BY URL -----');
-                
                 $url = 'http://www.feedbooks.com/catalog.atom';
-//                $url = 'http://www.feedbooks.com/store/categories/FBFIC000000.atom';
-//                $url = 'http://www.feedbooks.com/store/top.atom?category=FBFIC027000';
-//                $url = 'http://www.feedbooks.com/item/2707366.atom';
-                $r = $this->odpsParser->parseURL($url, array('Accept-Language: fr-fr,fr;'));
-                dump($r);
-                
+                break;
+            case 2:
+                $url = 'http://www.feedbooks.com/store/categories/FBFIC000000.atom';
+                break;
+            case 3:
+                $url = 'http://www.feedbooks.com/store/top.atom?category=FBFIC027000';
+                break;
+            case 4:
+               // $url = 'http://www.feedbooks.com/item/2707366.atom';
+                $url = 'http://www.feedbooks.com/item/988014.atom';
                 break;
         }
+        
+        $r = $this->odpsParser->parseURL($url, array('Accept-Language: fr-fr,fr;'));
+//        dump($r);
         
         $output->writeln('END ---------');
     }

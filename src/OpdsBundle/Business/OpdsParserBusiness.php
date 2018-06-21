@@ -3,24 +3,40 @@
 namespace OpdsBundle\Business;
 
 use OpdsBundle\Entity\Contributor;
+use OpdsBundle\Entity\Facet;
 use OpdsBundle\Entity\Feed;
 use OpdsBundle\Entity\Link;
 use OpdsBundle\Entity\Metadata;
+use OpdsBundle\Entity\Navigation;
 use OpdsBundle\Entity\OpdsMetadata;
+use OpdsBundle\Entity\Pagination;
 use OpdsBundle\Entity\Price;
 use OpdsBundle\Entity\Publication;
-use OpdsBundle\Entity\SearchInfo;
 use OpdsBundle\Entity\Subject;
 use OpdsBundle\Exception\OpdsParserNotFoundException;
 use OpdsBundle\Exception\OpdsParserNoTitleException;
 
 class OpdsParserBusiness
 {
-    const ODPS_REF_ACQUISITION = 'http://opds-spec.org/acquisition';
-    const ODPS_REF_GROUP = 'http://opds-spec.org/group';
-    const ODPS_REF_FACET = 'http://opds-spec.org/facet';
-    const ODPS_REF_IMAGE = 'http://opds-spec.org/image';
-    const ODPS_REF_THUMBNAIL = 'http://opds-spec.org/image/thumbnail';
+    const ODPS_REL_ACQUISITION = 'http://opds-spec.org/acquisition';
+    const ODPS_REL_ACQUISITION_OPEN_ACCESS = 'http://opds-spec.org/acquisition/open-access';
+    const ODPS_REL_ACQUISITION_BORROW = 'http://opds-spec.org/acquisition/borrow';
+    const ODPS_REL_ACQUISITION_BUY = 'http://opds-spec.org/acquisition/buy';
+    const ODPS_REL_ACQUISITION_SAMPLE = 'http://opds-spec.org/acquisition/sample';
+    const ODPS_REL_ACQUISITION_SUBSCRIBE = 'http://opds-spec.org/acquisition/subscribe';
+    const ODPS_REL_CRAWLABLE = 'http://opds-spec.org/crawlable';
+    const ODPS_REL_FACET = 'http://opds-spec.org/facet';
+    const ODPS_REL_FEATURE = 'http://opds-spec.org/featured';
+    const ODPS_REL_GROUP = 'http://opds-spec.org/group';
+    const ODPS_REL_IMAGE = 'http://opds-spec.org/image';
+    const ODPS_REL_RECOMMENDED = 'http://opds-spec.org/recommended';
+    const ODPS_REL_SHELF = 'http://opds-spec.org/shelf';
+    const ODPS_REL_SORT = 'http://opds-spec.org/sort';
+    const ODPS_REL_SUBSCRIPTIONS = 'http://opds-spec.org/subscriptions';
+    const ODPS_REL_THUMBNAIL = 'http://opds-spec.org/image/thumbnail';
+    
+    const ODPS_TYPE_KIND_NAVIGATION = 'kind=navigation';
+    const ODPS_TYPE_SEARCH = 'application/opensearchdescription+xml';
                         
     /**
      * 
@@ -103,7 +119,7 @@ class OpdsParserBusiness
      */
     private function parsePagination($xmldata)
     {
-        $pagination = new SearchInfo();
+        $pagination = new Pagination();
         $paginated = false;
 
         foreach ($xmldata->children('opensearch', true) as $key => $value) {
@@ -132,19 +148,15 @@ class OpdsParserBusiness
     {
         $feed = new Feed();
         $feed->setTitle((string) $xmldata->title);
-
         if (isset($xmldata->updated)) {
             $feed->setModified(\DateTime::createFromFormat(\DateTime::ISO8601, $xmldata->updated));
         }
-
-        $feed->setSearchInfo($this->parsePagination($xmldata));
-
-        if (!isset($xmldata->entry)) {
-
-            return $feed;
-        }
+        $feed->setPagination($this->parsePagination($xmldata));
 
         foreach ($xmldata->entry as $entry) {
+            $this->parseFeedEntry($entry, $feed);
+            
+            /*
             $isNavigation = true;
             $collectionLink = new Link();
 
@@ -152,11 +164,11 @@ class OpdsParserBusiness
                 if (isset($link['rel'])) {
                     $rel = (string) $link['rel'];
                     // Check is navigation or acquisition.
-                    if (strpos($rel, self::ODPS_REF_ACQUISITION) === 0) {
+                    if (strpos($rel, self::ODPS_REL_ACQUISITION) === 0) {
                         $isNavigation = false;
                     }
                     // Check if there is a collection.
-                    if (($rel === 'collection') || ($rel === self::ODPS_REF_GROUP)) {
+                    if (($rel === 'collection') || ($rel === self::ODPS_REL_GROUP)) {
                         $collectionLink->setRel('collection');
                         $collectionLink->setHref($link->href);
                         $collectionLink->setTitle($link->title);
@@ -199,47 +211,127 @@ class OpdsParserBusiness
                 } else {
                     $feed->addNavigation($newLink);
                 }
-            }
+            }*/
         }
 
-        $facetGroupName = null;
-        $facetActiveName = null;
         foreach ($xmldata->link as $link) {
-            $newLink = new Link();
-            $newLink->setHref((string) $link['href']);
-            $newLink->setTitle((string) $link['title']);
-            $newLink->setTypeLink((string) $link['type']);
-            if (isset($entry['rel'])) {
-                $newLink->setRel((string) $link['rel']);
-            }
-
-            unset($facetGroupName);
-            unset($facetActiveName); //@TODO
-            foreach ($link->children('opds', true) as $key => $value) {
-                switch ($key) {
-                    case 'facetGroup':
-                        $facetGroupName = (string) $value;
-                        break;
-                    case 'activeFacet':
-                        $facetActiveName = true;
-                        break;
-                }
-            }
-            
-            if (isset($facetGroupName) && !empty($newLink->getRel()) && $newLink->getRel() === self::ODPS_REF_FACET) {
-                foreach ($link->children('thr', true) as $key => $value) {
-                    if ($key !== 'count') { // total non utilisé dans http://opds-spec.org/specs/opds-catalog-1-1-20110627
-                        continue;
-                    }
-                    $newLink->getPropertieList()['numberOfItems'] = (int) $value;
-                }
-                // @TODO addFacet(feed: feed, to: newLink, named: facetGroupName)
-            } else {
-                $feed->addLink($newLink);
-            }
+            $this->parseFeedLink($link, $feed);
         }
 
         return $feed;
+    }
+
+    /**
+     * 
+     * @param \SimpleXMLElement $xmlLink
+     * @param Feed $feed passage par paramètre
+     */
+    private function parseFeedLink($xmlLink, Feed &$feed)
+    {
+        $groupName = null;
+        $isActive = false;
+        foreach ($xmlLink->attributes('opds', true) as $key => $value) {
+            switch ($key) {
+                case 'facetGroup':
+                    $groupName = (string) $value;
+                    break;
+                case 'activeFacet':
+                    $isActive = true;
+                    break;
+            }
+        }
+
+        if (empty($groupName)) {
+            $link = new Link();
+        } else {
+            $link = new Facet();
+            $link->setGroupName($groupName);
+            $link->setIsActiveFacet($isActive);
+        }
+
+        $link->setHref((string) $xmlLink['href']);
+        $link->setTitle((string) $xmlLink['title']);
+        $link->setTypeLink((string) $xmlLink['type']);
+        if (isset($xmlLink['rel'])) {
+            $link->setRel((string) $xmlLink['rel']);
+        }
+
+        if (($link instanceof Facet)) {
+            foreach ($xmlLink->attributes('thr', true) as $key => $value) {
+                if ($key === 'count') { // total non utilisé dans http://opds-spec.org/specs/opds-catalog-1-1-20110627
+                    $link->setNumberOfItems((int) $value);
+                }
+            }
+            $feed->addFacet($link);
+            
+            return;
+        }
+
+        if (strpos($link->getTypeLink(), self::ODPS_TYPE_KIND_NAVIGATION) !== false || strpos($link->getTypeLink(), self::ODPS_TYPE_SEARCH) !== false) {
+            $feed->addMenu($link);
+        } else {
+
+            $feed->addLink($link);
+        }
+    }
+
+    /**
+     * 
+     * @param \SimpleXMLElement $xmlEntry
+     * @param Feed $feed passage par paramètre
+     */
+    private function parseFeedEntry($xmlEntry, Feed &$feed)
+    {
+        $collectionLink = new Link();
+
+        if (count($xmlEntry->link) === 1 && strpos($xmlEntry->link['rel'], self::ODPS_REL_ACQUISITION) !== 0) { // liens de navigation
+            $link = new Navigation();
+
+            $link->setTitle((string) $xmlEntry->title);
+            $link->setId((string) $xmlEntry->id);
+            $link->setUpdatedAt(\DateTime::createFromFormat(\DateTime::ISO8601, $xmlEntry->updated));
+            $link->setTypeLink((string) $xmlEntry->link['type']);
+            $link->setHref((string) $xmlEntry->link['href']);
+            
+            if (isset($xmlEntry->content)) {
+                $link->setContent((string) $xmlEntry->content);
+            }
+            if (isset($xmlEntry->link['rel'])) {
+                $link->setRel((string) $xmlEntry->link['rel']);
+            }
+
+            // Check collection link
+            if (!empty($collectionLink->getHref())) {
+                // @TODO addNavigationInGroup(feed, newLink, collectionLink)
+            } else {
+                $feed->addNavigation($link);
+            }
+            
+            return;
+        }
+        
+        ///--------------
+        foreach ($xmlEntry->link as $link) {
+            if (isset($link['rel'])) {
+                // Check if there is a collection.
+                if (($rel === 'collection') || ($rel === self::ODPS_REL_GROUP)) {
+                    $collectionLink->setRel('collection');
+                    $collectionLink->setHref($link->href);
+                    $collectionLink->setTitle($link->title);
+                }
+            }
+        }
+        ///--------------
+        //
+     // lien de publication
+
+        $publication = $this->parseEntry($xmlEntry);
+        // Checking if this publication need to go into a group or in publications.
+        if (!empty($collectionLink->getHref())) {
+            // @TODO addPublicationInGroup(feed, publication, collectionLink)
+        } else {
+            $feed->addPublication($publication);
+        }
     }
 
     /**
@@ -364,8 +456,10 @@ class OpdsParserBusiness
                     //assert(false);
                 }
                 // Extract opds data
+                
                 foreach ($link->children('opds', true) as $key => $value) {
-    dump('odps', $key, $value);
+//                    dump($link);die;
+//    dump('odps', $key, $value); /*##/
                     switch ($key) {
                         case 'price':
                             $price = (string) $value;
@@ -382,9 +476,9 @@ class OpdsParserBusiness
 
                 if (isset($link['rel'])) {
                     $rel = (string) $link['rel'];
-                    if (($rel == 'collection') || ( $rel == self::ODPS_REF_GROUP)) {
+                    if (($rel == 'collection') || ( $rel == self::ODPS_REL_GROUP)) {
                         // nothing to do
-                    } elseif (($rel == self::ODPS_REF_IMAGE) || ( $rel == self::ODPS_REF_THUMBNAIL)) {
+                    } elseif (($rel == self::ODPS_REL_IMAGE) || ( $rel == self::ODPS_REL_THUMBNAIL)) {
                         $publication->addImage($newLink);
                     } else {
                         $publication->addLink($newLink);

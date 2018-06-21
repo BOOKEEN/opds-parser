@@ -12,7 +12,7 @@ class Link
     /**
      * @var array
      */
-    private $propertieList;
+//    private $propertieList;
 
     /**
      *

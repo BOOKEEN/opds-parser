@@ -2,7 +2,7 @@
 
 namespace OpdsBundle\Entity;
 
-class SearchInfo
+class Pagination
 {
     /**
      * @var int

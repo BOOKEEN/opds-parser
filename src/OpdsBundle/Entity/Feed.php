@@ -15,14 +15,14 @@ class Feed
     private $modified;
 
     /**
-     * @var Link[]
+     * @var Navigation[]
      */
     private $navigationList = array();
 
     /**
-     * @var SearchInfo
+     * @var Pagination
      */
-    private $searchInfo;
+    private $pagination;
 
     /**
      * @var string
@@ -30,10 +30,20 @@ class Feed
     private $title;
     
     private $collectionList = array(); //@TODO
-    private $menuList = array(); //@TODO
+    
+    /**
+     *
+     * @var Link[]
+     */
+    private $menuList = array();
     private $sortList = array(); //@TODO
     
-    private $facetList = array(); //@TODO
+    /**
+     * Liste de Facet regroupées par nom de group
+     *
+     * @var array
+     */
+    private $facetList = array();
     /**
      * @var Publication[]
      */
@@ -47,6 +57,11 @@ class Feed
     function setFacetList($facetList)
     {
         $this->facetList = $facetList;
+    }
+    
+    function addFacet(Facet $facet)
+    {
+        $this->facetList[$facet->getGroupName()][] = $facet;
     }
 
         function getPublicationList()
@@ -89,10 +104,20 @@ class Feed
     {
         $this->menuList = $menuList;
     }
+    
+    function addMenu(Link $menu)
+    {
+        $this->menuList[] = $menu;
+    }
 
     function setSortList($sortList)
     {
         $this->sortList = $sortList;
+    }
+    
+    function addSort(Link $sort)
+    {
+        $this->sortList[] = $sort;
     }
 
         
@@ -105,11 +130,11 @@ class Feed
     }
 
     /**
-     * @return SearchInfo
+     * @return Pagination
      */
-    function getSearchInfo()
+    function getPagination()
     {
-        return $this->searchInfo;
+        return $this->pagination;
     }
 
     /**
@@ -145,11 +170,11 @@ class Feed
     }
 
     /**
-     * @param SearchInfo|null $searchInfo
+     * @param Pagination|null $pagination
      */
-    function setSearchInfo($searchInfo)
+    function setPagination($pagination)
     {
-        $this->searchInfo = $searchInfo;
+        $this->pagination = $pagination;
     }
 
     /**
