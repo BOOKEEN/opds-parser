@@ -60,6 +60,14 @@ class TestCommand extends ContainerAwareCommand
 //                $url = 'http://longueuil.pretnumerique.ca/catalog.atom?category=detective-suspense&amp;category_standard=cantook';
 //                $url = 'http://longueuil.pretnumerique.ca/resource_entries/5b2a7a6d235794549499fccb.atom';
                 break;
+            case 6:
+                $url = 'http://www.feedbooks.com/opensearch.xml';
+//                $url = 'http://longueuil.pretnumerique.ca/catalog/opensearch.xml';
+                $r = $this->odpsParser->parseSearchUrl($url);
+                dump($r);
+//                dump($r[\OpdsBundle\Entity\Search::TYPE_JSON]);
+                die;
+                break;
         }
         
         $r = $this->odpsParser->parseURL($url, array('Accept-Language: fr-fr,fr;'));

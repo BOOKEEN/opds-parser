@@ -13,6 +13,7 @@ use OpdsBundle\Entity\OpdsMetadata;
 use OpdsBundle\Entity\Pagination;
 use OpdsBundle\Entity\Price;
 use OpdsBundle\Entity\Publication;
+use OpdsBundle\Entity\Search;
 use OpdsBundle\Entity\Subject;
 use OpdsBundle\Exception\OpdsParserNotFoundException;
 use OpdsBundle\Exception\OpdsParserNoTitleException;
@@ -92,6 +93,51 @@ class OpdsParserBusiness
         $xmldata = new \SimpleXMLElement($content);
 
         return $this->parse($xmldata);
+    }
+
+    /**
+     * 
+     * @param string $url
+     * 
+     * @return Search[]
+     */
+    public function parseSearchUrl($url)
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+
+        ob_start();
+        curl_exec($ch);
+        curl_close($ch);
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        $xmldata = new \SimpleXMLElement($content);
+
+        return $this->parseSearch($xmldata);
+    }
+    
+    /**
+     * 
+     * @param \SimpleXMLElement $xmlData
+     * 
+     * @return Search[]
+     */
+    private function parseSearch($xmlData)
+    {
+        $list = array();
+        foreach ($xmlData->Url as $value) {
+            $search = new Search();
+            $search->setTemplate((string) $value['template']);
+            $search->setType((string) $value['type']);
+            $search->setRel((string) $value['rel']);
+            
+            $list[$search->getType()] = $search;
+        }
+        
+        return $list;
     }
 
     /**
