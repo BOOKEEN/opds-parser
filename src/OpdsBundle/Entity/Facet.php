@@ -6,7 +6,7 @@ class Facet extends Link
 {
     private $numberOfItems;
     private $isActiveFacet = false;
-    private $groupName;
+//    private $groupName;
 
     function getNumberOfItems()
     {
@@ -18,10 +18,10 @@ class Facet extends Link
         return $this->isActiveFacet;
     }
 
-    function getGroupName()
-    {
-        return $this->groupName;
-    }
+//    function getGroupName()
+//    {
+//        return $this->groupName;
+//    }
 
     function setNumberOfItems($numberOfItems)
     {
@@ -33,9 +33,9 @@ class Facet extends Link
         $this->isActiveFacet = $isActiveFacet;
     }
 
-    function setGroupName($groupName)
-    {
-        $this->groupName = $groupName;
-    }
+//    function setGroupName($groupName)
+//    {
+//        $this->groupName = $groupName;
+//    }
 
 }

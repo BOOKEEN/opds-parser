@@ -4,6 +4,10 @@ namespace OpdsBundle\Entity;
 
 class Metadata
 {
+    /**
+     * EAN papier
+     * @var type 
+     */
     private $source;
     
     private $numberPages;
@@ -15,9 +19,15 @@ class Metadata
     private $issuedAt;
     
     /**
-     * @var Price
+     * @var Price[]
      */
-    private $price;
+    private $priceList;
+    
+    /**
+     *
+     * @var Borrow[]
+     */
+    private $borrowList;
     
     function getIssuedAt()
     {
@@ -39,16 +49,37 @@ class Metadata
         $this->source = $source;
     }
     
-    function getPrice()
+    function getPriceList()
     {
-        return $this->price;
+        return $this->priceList;
     }
 
-    function setPrice(Price $price)
+    function setPriceList(array $priceList)
     {
-        $this->price = $price;
+        $this->priceList = $priceList;
+    }
+    
+    function addPrice(Price $price)
+    {
+        $this->priceList[] = $price;
     }
 
+    function getBorrowList()
+    {
+        return $this->borrowList;
+    }
+
+    function setBorrowList(array $borrowList)
+    {
+        $this->borrowList = $borrowList;
+    }
+    
+    function addBorrow(Borrow $borrow)
+    {
+        $this->borrowList[] = $borrow;
+    }
+
+        
     function getNumberPages()
     {
         return $this->numberPages;
@@ -91,6 +122,7 @@ class Metadata
 //    private $extent;
 
     /**
+     * EAN numérique
      * @var string
      */
     private $identifier;

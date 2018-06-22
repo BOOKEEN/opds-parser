@@ -55,11 +55,15 @@ class TestCommand extends ContainerAwareCommand
                // $url = 'http://www.feedbooks.com/item/2707366.atom';
                 $url = 'http://www.feedbooks.com/item/988014.atom';
                 break;
+            case 5:
+                $url = 'http://longueuil.pretnumerique.ca/catalog.atom';
+                break;
         }
         
         $r = $this->odpsParser->parseURL($url, array('Accept-Language: fr-fr,fr;'));
-        //$r->setPublicationList(array());
-        dump($r);
+//        $r->setFacetList(array());
+//        $r->setPublicationList(array());
+//        dump($r);
         
         $output->writeln('END ---------');
     }

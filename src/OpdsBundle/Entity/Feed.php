@@ -98,9 +98,9 @@ class Feed
         $this->facetList = $facetList;
     }
     
-    function addFacet(Facet $facet)
+    function addFacet(Facet $facet, $groupName)
     {
-        $this->facetList[$facet->getGroupName()][] = $facet;
+        $this->facetList[$groupName][] = $facet;
     }
 
         function getPublicationList()

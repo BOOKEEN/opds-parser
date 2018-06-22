@@ -2,6 +2,7 @@
 
 namespace OpdsBundle\Business;
 
+use OpdsBundle\Entity\Borrow;
 use OpdsBundle\Entity\Contributor;
 use OpdsBundle\Entity\Facet;
 use OpdsBundle\Entity\Feed;
@@ -18,20 +19,25 @@ use OpdsBundle\Exception\OpdsParserNoTitleException;
 
 class OpdsParserBusiness
 {
+    const ODPS_REL_ALTERNATE = 'alternate';
     const ODPS_REL_ACQUISITION = 'http://opds-spec.org/acquisition';
     const ODPS_REL_ACQUISITION_OPEN_ACCESS = 'http://opds-spec.org/acquisition/open-access';
     const ODPS_REL_ACQUISITION_BORROW = 'http://opds-spec.org/acquisition/borrow';
     const ODPS_REL_ACQUISITION_BUY = 'http://opds-spec.org/acquisition/buy';
-    const ODPS_REL_ACQUISITION_SAMPLE = 'http://opds-spec.org/acquisition/sample';
+    const ODPS_REL_ACQUISITION_SAMPLE = 'http://opds-spec.org/acquisition/sample'; // extrait
     const ODPS_REL_ACQUISITION_SUBSCRIBE = 'http://opds-spec.org/acquisition/subscribe';
     const ODPS_REL_CRAWLABLE = 'http://opds-spec.org/crawlable';
     const ODPS_REL_FACET = 'http://opds-spec.org/facet';
     const ODPS_REL_FEATURE = 'http://opds-spec.org/featured';
     const ODPS_REL_GROUP = 'http://opds-spec.org/group';
     const ODPS_REL_IMAGE = 'http://opds-spec.org/image';
+    const ODPS_REL_NEXT = 'next';
     const ODPS_REL_RECOMMENDED = 'http://opds-spec.org/recommended';
+    const ODPS_REL_SEARCH = 'search';
+    const ODPS_REL_SELF = 'self';
     const ODPS_REL_SHELF = 'http://opds-spec.org/shelf';
     const ODPS_REL_SORT = 'http://opds-spec.org/sort';
+    const ODPS_REL_START = 'start';
     const ODPS_REL_SUBSCRIPTIONS = 'http://opds-spec.org/subscriptions';
     const ODPS_REL_THUMBNAIL = 'http://opds-spec.org/image/thumbnail';
 
@@ -179,7 +185,7 @@ class OpdsParserBusiness
                     $groupName = (string) $value;
                     break;
                 case 'activeFacet':
-                    $isActive = true;
+                    $isActive = (string) $value === 'true' ? true : false;
                     break;
             }
         }
@@ -188,7 +194,6 @@ class OpdsParserBusiness
             $link = new Link();
         } else {
             $link = new Facet();
-            $link->setGroupName($groupName);
             $link->setIsActiveFacet($isActive);
         }
 
@@ -205,12 +210,14 @@ class OpdsParserBusiness
                     $link->setNumberOfItems((int) $value);
                 }
             }
-            $feed->addFacet($link);
+            $feed->addFacet($link, $groupName);
 
             return;
         }
 
-        if (strpos($link->getTypeLink(), self::ODPS_TYPE_KIND_NAVIGATION) !== false || strpos($link->getTypeLink(), self::ODPS_TYPE_SEARCH) !== false) {
+        if (strpos($link->getTypeLink(), self::ODPS_TYPE_KIND_NAVIGATION) !== false || strpos($link->getTypeLink(), self::ODPS_TYPE_SEARCH) !== false
+          || in_array($link->getHref(), array(self::ODPS_REL_NEXT, self::ODPS_REL_SEARCH, self::ODPS_REL_SELF))
+        ) {
             $feed->addMenu($link);
         } else {
 
@@ -242,7 +249,7 @@ class OpdsParserBusiness
                 $link->setRel((string) $xmlEntry->link['rel']);
             }
 
-            if (!empty($link->getRel()) && (($link->getRel() === 'collection') || ($link->getRel() === self::ODPS_REL_GROUP))) {
+            if (($link->getRel() === 'collection') || ($link->getRel() === self::ODPS_REL_GROUP)) {
                 $link->setRel('collection');
                 $feed->addCollectionLink($link);
             } else {
@@ -371,7 +378,7 @@ class OpdsParserBusiness
                     $link->setRel((string) $xmlLink['rel']);
                 }
 
-                if (!empty($link->getRel()) && $link->getRel() === self::ODPS_REL_ACQUISITION_BUY) {
+                if ($link->getRel() === self::ODPS_REL_ACQUISITION_BUY) {
                     $price = new Price();
 
                     foreach ($xmlLink->children('opds', true) as $key => $value) {
@@ -390,7 +397,35 @@ class OpdsParserBusiness
                         $price->setCurrency((string) $attributeList['currencycode']);
                     }
 
-                    $metadata->setPrice($price);
+                    $metadata->addPrice($price);
+                }
+                
+                if ($link->getRel() == self::ODPS_REL_ACQUISITION_BORROW) {
+                    $borrow = new Borrow();
+                    $borrow->setIdentifier((string) $xmlLink->identifier);
+
+                    foreach ($xmlLink->children('opds', true) as $key => $value) {
+                        $attributeList = $value->attributes();
+
+                        if ($key === 'unavailable') {
+                            $borrow->setUnavailableUntil(\DateTime::createFromFormat(\DateTime::ISO8601, $attributeList['date']));
+                            continue;
+                        }
+
+                        if ($key !== 'indirectAcquisition') {
+                            continue;
+                        }
+
+                        if (isset($value->indirectAcquisition)) {
+                            $borrow->setProtection((string) $attributeList['type']);
+                            $borrow->setFormat((string) $value->indirectAcquisition['type']);
+                        } else {
+                            $borrow->setFormat((string) $attributeList['type']);
+                        }
+                    }
+dump($borrow);
+die;
+                    $metadata->addBorrow($borrow);
                 }
 
                 if (!isset($xmlLink['rel'])) {
@@ -407,7 +442,7 @@ class OpdsParserBusiness
                 }
             }
         }
-
+dump($publication);die;
         return $publication;
     }
 
