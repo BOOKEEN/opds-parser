@@ -216,7 +216,7 @@ class OpdsParserBusiness
         }
 
         if (strpos($link->getTypeLink(), self::ODPS_TYPE_KIND_NAVIGATION) !== false || strpos($link->getTypeLink(), self::ODPS_TYPE_SEARCH) !== false
-          || in_array($link->getHref(), array(self::ODPS_REL_NEXT, self::ODPS_REL_SEARCH, self::ODPS_REL_SELF))
+          || in_array($link->getRel(), array(self::ODPS_REL_NEXT, self::ODPS_REL_SEARCH, self::ODPS_REL_SELF))
         ) {
             $feed->addMenu($link);
         } else {
@@ -241,12 +241,10 @@ class OpdsParserBusiness
             $link->setUpdatedAt(\DateTime::createFromFormat(\DateTime::ISO8601, $xmlEntry->updated));
             $link->setTypeLink((string) $xmlEntry->link['type']);
             $link->setHref((string) $xmlEntry->link['href']);
+            $link->setRel((string) $xmlEntry->link['rel']);
 
             if (isset($xmlEntry->content)) {
                 $link->setContent((string) $xmlEntry->content);
-            }
-            if (isset($xmlEntry->link['rel'])) {
-                $link->setRel((string) $xmlEntry->link['rel']);
             }
 
             if (($link->getRel() === 'collection') || ($link->getRel() === self::ODPS_REL_GROUP)) {
@@ -288,13 +286,10 @@ class OpdsParserBusiness
         $metadata = new Metadata();
         $publication->setMetadata($metadata);
 
-        // champs obligatoires
         $metadata->setTitle((string) $entry->title);
         $publication->setIdentifier((string) $entry->id);
         $metadata->setUpdatedAt(\DateTime::createFromFormat(\DateTime::ISO8601, $entry->updated));
 
-        //----
-        // Extract dcterms data
         foreach ($entry->children('dcterms', true) as $key => $value) {
             switch ($key) {
                 case 'language':
@@ -313,13 +308,13 @@ class OpdsParserBusiness
                         $metadata->setNumberPages($extent);
                     }
                     break;
-                case 'identifier': // isbn @TODO add ?
+                case 'identifier':
                     $metadata->setIdentifier((string) $value);
                     break;
-                case 'source': // isbn @TODO add ?
+                case 'source':
                     $metadata->setSource((string) $value);
                     break;
-                case 'issued': // date @TODO add ?
+                case 'issued':
                     $metadata->setIssuedAt(\DateTime::createFromFormat('Y-m-d', $value));
                     break;
             }
@@ -333,7 +328,6 @@ class OpdsParserBusiness
         }
 
         // TODO SERIES -------------
-        // Categories.
         if (count($entry->category)) {
             foreach ($entry->category as $category) {
                 $subject = new Subject();
@@ -344,7 +338,6 @@ class OpdsParserBusiness
             }
         }
 
-        // Author.
         if (count($entry->author)) {
             foreach ($entry->author as $author) {
                 $contributor = new Contributor();
@@ -358,14 +351,12 @@ class OpdsParserBusiness
             }
         }
 
-        // Description.
         if (isset($entry->content)) {
             $metadata->setDescription((string) $entry->content);
         } elseif (isset($entry->summary)) {
             $metadata->setDescription((string) $entry->summary);
         }
 
-        // Links.
         if (count($entry->link)) {
             foreach ($entry->link as $xmlLink) {
                 $link = new Link();
@@ -373,10 +364,7 @@ class OpdsParserBusiness
                 $link->setHref((string) $xmlLink['href']);
                 $link->setTitle((string) $xmlLink['title']);
                 $link->setTypeLink((string) $xmlLink['type']);
-
-                if (isset($xmlLink['rel'])) {
-                    $link->setRel((string) $xmlLink['rel']);
-                }
+                $link->setRel((string) $xmlLink['rel']);
 
                 if ($link->getRel() === self::ODPS_REL_ACQUISITION_BUY) {
                     $price = new Price();
@@ -418,13 +406,18 @@ class OpdsParserBusiness
 
                         if (isset($value->indirectAcquisition)) {
                             $borrow->setProtection((string) $attributeList['type']);
-                            $borrow->setFormat((string) $value->indirectAcquisition['type']);
+                            $protectionAttList = $value->indirectAcquisition->attributes();
+                            $borrow->setFormat((string) $protectionAttList['type']);
                         } else {
                             $borrow->setFormat((string) $attributeList['type']);
                         }
                     }
-dump($borrow);
-die;
+
+                    if (empty($borrow->getFormat())) {
+                        $borrow->setUrl((string) $xmlLink['href']);
+                        $borrow->setProtection((string) $xmlLink['type']);
+                    }
+
                     $metadata->addBorrow($borrow);
                 }
 
@@ -442,7 +435,7 @@ die;
                 }
             }
         }
-dump($publication);die;
+
         return $publication;
     }
 

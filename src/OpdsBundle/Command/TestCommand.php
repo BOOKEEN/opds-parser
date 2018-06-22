@@ -57,13 +57,15 @@ class TestCommand extends ContainerAwareCommand
                 break;
             case 5:
                 $url = 'http://longueuil.pretnumerique.ca/catalog.atom';
+//                $url = 'http://longueuil.pretnumerique.ca/catalog.atom?category=detective-suspense&amp;category_standard=cantook';
+//                $url = 'http://longueuil.pretnumerique.ca/resource_entries/5b2a7a6d235794549499fccb.atom';
                 break;
         }
         
         $r = $this->odpsParser->parseURL($url, array('Accept-Language: fr-fr,fr;'));
 //        $r->setFacetList(array());
 //        $r->setPublicationList(array());
-//        dump($r);
+        dump($r);
         
         $output->writeln('END ---------');
     }

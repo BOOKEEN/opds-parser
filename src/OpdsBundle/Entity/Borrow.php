@@ -12,6 +12,8 @@ class Borrow
     private $format;
     
     private $protection;
+    
+    private $url;
     /**
      *
      * @var \DateTime
@@ -56,6 +58,16 @@ class Borrow
     function setUnavailableUntil(\DateTime $unavailableUntil)
     {
         $this->unavailableUntil = $unavailableUntil;
+    }
+
+    function getUrl()
+    {
+        return $this->url;
+    }
+
+    function setUrl($url)
+    {
+        $this->url = $url;
     }
 
 
