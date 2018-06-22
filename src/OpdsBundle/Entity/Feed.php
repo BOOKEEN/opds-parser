@@ -42,9 +42,9 @@ class Feed
     private $pagination;
 
     /**
-     * @var type 
+     * @var Link[]
      */
-    private $sortList = array(); //@TODO
+    private $sortList = array();
 
     /**
      * @var string
@@ -167,6 +167,9 @@ class Feed
         return $this->menuList;
     }
 
+    /**
+     * @return Link[]
+     */
     public function getSortList()
     {
         return $this->sortList;
@@ -188,7 +191,10 @@ class Feed
         $this->menuList[] = $menu;
     }
 
-    public function setSortList($sortList)
+    /**
+     * @param Link[] $sortList
+     */
+    public function setSortList(array $sortList)
     {
         $this->sortList = $sortList;
     }

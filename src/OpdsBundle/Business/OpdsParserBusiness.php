@@ -17,6 +17,7 @@ use OpdsBundle\Entity\Search;
 use OpdsBundle\Entity\Subject;
 use OpdsBundle\Exception\OpdsParserNotFoundException;
 use OpdsBundle\Exception\OpdsParserNoTitleException;
+use OpdsBundle\Utils\XmlLoaderUtils;
 
 class OpdsParserBusiness
 {
@@ -54,15 +55,7 @@ class OpdsParserBusiness
      */
     public function parseFile($file)
     {
-        $handle = fopen($file, 'r');
-        if (!$handle) {
-
-            throw new OpdsParserNotFoundException();
-        }
-        $content = fread($handle, filesize($file));
-        fclose($handle);
-
-        $xmldata = new \SimpleXMLElement($content);
+        $xmldata = XmlLoaderUtils::loadXmlByFile($file);
 
         return $this->parse($xmldata);
     }
@@ -76,21 +69,7 @@ class OpdsParserBusiness
      */
     public function parseURL($url, $headers = null)
     {
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        if ($headers) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
-
-        ob_start();
-        curl_exec($ch);
-        curl_close($ch);
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        $xmldata = new \SimpleXMLElement($content);
+        $xmldata = XmlLoaderUtils::loadXmlByUrl($url, $headers);
 
         return $this->parse($xmldata);
     }
@@ -103,18 +82,7 @@ class OpdsParserBusiness
      */
     public function parseSearchUrl($url)
     {
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-
-        ob_start();
-        curl_exec($ch);
-        curl_close($ch);
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        $xmldata = new \SimpleXMLElement($content);
+        $xmldata = XmlLoaderUtils::loadXmlByUrl($url);
 
         return $this->parseSearch($xmldata);
     }
