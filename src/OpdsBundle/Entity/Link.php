@@ -10,11 +10,6 @@ class Link
     private $href;
 
     /**
-     * @var array
-     */
-//    private $propertieList;
-
-    /**
      *
      * @var string
      */
@@ -33,23 +28,15 @@ class Link
     /**
      * @return string
      */
-    function getHref()
+    public function getHref()
     {
         return $this->href;
     }
 
     /**
-     * @return array
-     */
-    function getPropertieList()
-    {
-        return $this->propertieList;
-    }
-
-    /**
      * @return string
      */
-    function getRel()
+    public function getRel()
     {
         return $this->rel;
     }
@@ -57,7 +44,7 @@ class Link
     /**
      * @return string
      */
-    function getTitle()
+    public function getTitle()
     {
         return $this->title;
     }
@@ -65,7 +52,7 @@ class Link
     /**
      * @return string
      */
-    function getTypeLink()
+    public function getTypeLink()
     {
         return $this->typeLink;
     }
@@ -73,24 +60,16 @@ class Link
     /**
      * @param string $href
      */
-    function setHref($href)
+    public function setHref($href)
     {
         $this->href = $href;
-    }
-
-    /**
-     * @param array $propertieList
-     */
-    function setPropertieList(array $propertieList)
-    {
-        $this->propertieList = $propertieList;
     }
 
     /**
      * 
      * @param string $rel
      */
-    function setRel($rel)
+    public function setRel($rel)
     {
         $this->rel = $rel;
     }
@@ -98,7 +77,7 @@ class Link
     /**
      * @param string $title
      */
-    function setTitle($title)
+    public function setTitle($title)
     {
         $this->title = $title;
     }
@@ -106,9 +85,9 @@ class Link
     /**
      * @param string $typeLink
      */
-    function setTypeLink($typeLink)
+    public function setTypeLink($typeLink)
     {
         $this->typeLink = $typeLink;
     }
-    
+
 }

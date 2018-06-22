@@ -10,74 +10,62 @@ class Price
     private $currency;
 
     /**
+     * @var string
+     */
+    private $format;
+
+    /**
      * @var string 
      */
     private $price;
-    
-    private $format;
-    
-    function getFormat()
-    {
-        return $this->format;
-    }
-
-    function setFormat($format)
-    {
-        $this->format = $format;
-    }
-
-    
-    /**
-     * @var array 
-     */
-//    private $propertieList = array();
 
     /**
      * @return string
      */
-    function getCurrency()
+    public function getCurrency()
     {
         return $this->currency;
     }
 
     /**
-     * @return string
-     */
-    function getPrice()
-    {
-        return $this->price;
-    }
-
-    /**
-     * @return array
-     */
-//    function getPropertieList()
-//    {
-//        return $this->propertieList;
-//    }
-
-    /**
      * @param string $currency
      */
-    function setCurrency($currency)
+    public function setCurrency($currency)
     {
         $this->currency = $currency;
     }
 
     /**
-     * @param string $price
+     * @return string
      */
-    function setPrice($price)
+    public function getFormat()
     {
-        $this->price = $price;
+        return $this->format;
     }
 
     /**
-     * @param array $propertieList
+     * 
+     * @param string $format
      */
-//    function setPropertieList($propertieList)
-//    {
-//        $this->propertieList = $propertieList;
-//    }
+    public function setFormat($format)
+    {
+        $this->format = $format;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrice()
+    {
+        return $this->price;
+    }
+
+    /**
+     * @param string $price
+     */
+    public function setPrice($price)
+    {
+        $this->price = $price;
+    }
 
 }

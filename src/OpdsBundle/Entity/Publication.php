@@ -4,23 +4,11 @@ namespace OpdsBundle\Entity;
 
 class Publication
 {
-    
+    /**
+     * @var string
+     */
     private $identifier;
-    
-    function getIdentifier()
-    {
-        return $this->identifier;
-    }
 
-    function setIdentifier($identifier)
-    {
-        $this->identifier = $identifier;
-    }
-
-        
-    //-----------
-    
-    
     /**
      * @var Link[]
      */
@@ -37,9 +25,25 @@ class Publication
     private $metadata;
 
     /**
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+
+    /**
+     * @param string $identifier
+     */
+    public function setIdentifier($identifier)
+    {
+        $this->identifier = $identifier;
+    }
+
+    /**
      * @return Link[]
      */
-    function getImageList()
+    public function getImageList()
     {
         return $this->imageList;
     }
@@ -47,7 +51,7 @@ class Publication
     /**
      * @param Link[] $imageList
      */
-    function setImageList(array $imageList)
+    public function setImageList(array $imageList)
     {
         $this->imageList = $imageList;
     }
@@ -55,7 +59,7 @@ class Publication
     /**
      * @param Link $image
      */
-    function addImage(Link $image)
+    public function addImage(Link $image)
     {
         $this->imageList[] = $image;
     }
@@ -63,7 +67,7 @@ class Publication
     /**
      * @return Link[]
      */
-    function getLinkList()
+    public function getLinkList()
     {
         return $this->linkList;
     }
@@ -71,7 +75,7 @@ class Publication
     /**
      * @param Link[] $linkList
      */
-    function setLinkList(array $linkList)
+    public function setLinkList(array $linkList)
     {
         $this->linkList = $linkList;
     }
@@ -79,7 +83,7 @@ class Publication
     /**
      * @param Link $image
      */
-    function addLink(Link $image)
+    public function addLink(Link $image)
     {
         $this->linkList[] = $image;
     }
@@ -87,7 +91,7 @@ class Publication
     /**
      * @return Metadata
      */
-    function getMetadata()
+    public function getMetadata()
     {
         return $this->metadata;
     }
@@ -95,7 +99,7 @@ class Publication
     /**
      * @param Metadata $metadata
      */
-    function setMetadata(Metadata $metadata)
+    public function setMetadata(Metadata $metadata)
     {
         $this->metadata = $metadata;
     }

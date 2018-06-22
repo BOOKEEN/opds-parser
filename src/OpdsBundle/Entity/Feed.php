@@ -10,14 +10,31 @@ class Feed
     private $linkList = array();
 
     /**
-     * @var \DateTime
-     */
-    private $updatedAt;
-
-    /**
      * @var Navigation[]
      */
     private $navigationList = array();
+
+    /**
+     * @var Link[]
+     */
+    private $collectionLinkList = array();
+
+    /**
+     * @var Publication[]
+     */
+    private $collectionPublicationList = array();
+
+    /**
+     * Liste de Facet regroupées par nom de group
+     *
+     * @var array
+     */
+    private $facetList = array();
+
+    /**
+     * @var Link[]
+     */
+    private $menuList = array();
 
     /**
      * @var Pagination
@@ -25,135 +42,166 @@ class Feed
     private $pagination;
 
     /**
+     * @var type 
+     */
+    private $sortList = array(); //@TODO
+
+    /**
      * @var string
      */
     private $title;
-    
+
     /**
-     * @var Link[]
+     * @var \DateTime
      */
-    private $collectionLinkList = array();
-    
-    /**
-     * @var Publication
-     */
-    private $collectionPublicationList = array();
-    
-    /**
-     *
-     * @var Link[]
-     */
-    private $menuList = array();
-    private $sortList = array(); //@TODO
-    
-    /**
-     * Liste de Facet regroupées par nom de group
-     *
-     * @var array
-     */
-    private $facetList = array();
+    private $updatedAt;
+
     /**
      * @var Publication[]
      */
-    private $publicationList = array(); //@TODO
-    
-    function getCollectionLinkList()
+    private $publicationList = array();
+
+    /**
+     * @return Link[]
+     */
+    public function getCollectionLinkList()
     {
         return $this->collectionLinkList;
     }
 
-    function getCollectionPublicationList()
+    /**
+     * @return array
+     */
+    public function getCollectionPublicationList()
     {
         return $this->collectionPublicationList;
     }
 
-    function setCollectionLinkList($collectionLinkList)
+    /**
+     * @param Link[] $collectionLinkList
+     */
+    public function setCollectionLinkList($collectionLinkList)
     {
         $this->collectionLinkList = $collectionLinkList;
     }
-    
-    function addCollectionLink(Link $link)
+
+    /**
+     * @param Link $link
+     */
+    public function addCollectionLink(Link $link)
     {
         $this->collectionLinkList[] = $link;
     }
 
-    function setCollectionPublicationList($collectionPublicationList)
+    /**
+     * 
+     * @param array $collectionPublicationList
+     */
+    public function setCollectionPublicationList(array $collectionPublicationList)
     {
         $this->collectionPublicationList = $collectionPublicationList;
     }
-    
-     function addCollectionPublicationList(Publication $publication)
+
+    /**
+     * @param Publication $publication
+     */
+    public function addCollectionPublicationList(Publication $publication)
     {
         $this->collectionPublicationList[] = $publication;
     }
 
-        
-    function getFacetList()
+    /**
+     * @return array
+     */
+    public function getFacetList()
     {
         return $this->facetList;
     }
 
-    function setFacetList($facetList)
+    /**
+     * @param array $facetList
+     */
+    public function setFacetList(array $facetList)
     {
         $this->facetList = $facetList;
     }
-    
-    function addFacet(Facet $facet, $groupName)
+
+    /**
+     * @param Facet $facet
+     * @param string $groupName
+     */
+    public function addFacet(Facet $facet, $groupName)
     {
         $this->facetList[$groupName][] = $facet;
     }
 
-        function getPublicationList()
+    /**
+     * @return Publication[]
+     */
+    public function getPublicationList()
     {
         return $this->publicationList;
     }
 
-    function setPublicationList(array $PublicationList)
+    /**
+     * @param Publication[] $publicationList
+     */
+    public function setPublicationList(array $publicationList)
     {
-        $this->publicationList = $PublicationList;
+        $this->publicationList = $publicationList;
     }
-    
-    function addPublication(Publication $publication)
+
+    /**
+     * @param Publication $publication
+     */
+    public function addPublication(Publication $publication)
     {
         $this->publicationList[] = $publication;
     }
 
-
-    function getMenuList()
+    /**
+     * @return Link[]
+     */
+    public function getMenuList()
     {
         return $this->menuList;
     }
 
-    function getSortList()
+    public function getSortList()
     {
         return $this->sortList;
     }
 
-    function setMenuList($menuList)
+    /**
+     * @param Link[] $menuList
+     */
+    public function setMenuList(array $menuList)
     {
         $this->menuList = $menuList;
     }
-    
-    function addMenu(Link $menu)
+
+    /**
+     * @param Link $menu
+     */
+    public function addMenu(Link $menu)
     {
         $this->menuList[] = $menu;
     }
 
-    function setSortList($sortList)
+    public function setSortList($sortList)
     {
         $this->sortList = $sortList;
     }
-    
-    function addSort(Link $sort)
+
+    public function addSort(Link $sort)
     {
         $this->sortList[] = $sort;
     }
 
-        
     /**
      * @return Link[]
      */
-    function getLinkList()
+    public function getLinkList()
     {
         return $this->linkList;
     }
@@ -161,7 +209,7 @@ class Feed
     /**
      * @return Pagination
      */
-    function getPagination()
+    public function getPagination()
     {
         return $this->pagination;
     }
@@ -169,7 +217,7 @@ class Feed
     /**
      * @return \DateTime
      */
-    function getUpdatedAt()
+    public function getUpdatedAt()
     {
         return $this->updatedAt;
     }
@@ -177,7 +225,7 @@ class Feed
     /**
      * @return Link[]
      */
-    function getNavigationList()
+    public function getNavigationList()
     {
         return $this->navigationList;
     }
@@ -185,7 +233,7 @@ class Feed
     /**
      * @return string
      */
-    function getTitle()
+    public function getTitle()
     {
         return $this->title;
     }
@@ -193,7 +241,7 @@ class Feed
     /**
      * @param Link[] $linkList
      */
-    function setLinkList(array $linkList)
+    public function setLinkList(array $linkList)
     {
         $this->linkList = $linkList;
     }
@@ -201,7 +249,7 @@ class Feed
     /**
      * @param Pagination|null $pagination
      */
-    function setPagination($pagination)
+    public function setPagination($pagination)
     {
         $this->pagination = $pagination;
     }
@@ -209,7 +257,7 @@ class Feed
     /**
      * @param \DateTime $updatedAt
      */
-    function setUpdatedAt(\DateTime $updatedAt)
+    public function setUpdatedAt(\DateTime $updatedAt)
     {
         $this->updatedAt = $updatedAt;
     }
@@ -217,7 +265,7 @@ class Feed
     /**
      * @param Link[] $navigationList
      */
-    function setNavigationList(array $navigationList)
+    public function setNavigationList(array $navigationList)
     {
         $this->navigationList = $navigationList;
     }
@@ -225,7 +273,7 @@ class Feed
     /**
      * @param string $title
      */
-    function setTitle($title)
+    public function setTitle($title)
     {
         $this->title = $title;
     }
@@ -233,7 +281,7 @@ class Feed
     /**
      * @param Link $link
      */
-    function addNavigation(Link $link)
+    public function addNavigation(Link $link)
     {
         $this->navigationList[] = $link;
     }
@@ -241,7 +289,7 @@ class Feed
     /**
      * @param Link $link
      */
-    function addLink(Link $link)
+    public function addLink(Link $link)
     {
         $this->linkList[] = $link;
     }

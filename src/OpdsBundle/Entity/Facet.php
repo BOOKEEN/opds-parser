@@ -4,38 +4,46 @@ namespace OpdsBundle\Entity;
 
 class Facet extends Link
 {
+    /**
+     * @var int
+     */
     private $numberOfItems;
+
+    /**
+     * @var bool 
+     */
     private $isActiveFacet = false;
-//    private $groupName;
 
-    function getNumberOfItems()
-    {
-        return $this->numberOfItems;
-    }
-
-    function getIsActiveFacet()
+    /**
+     * @return bool
+     */
+    public function getIsActiveFacet()
     {
         return $this->isActiveFacet;
     }
 
-//    function getGroupName()
-//    {
-//        return $this->groupName;
-//    }
-
-    function setNumberOfItems($numberOfItems)
-    {
-        $this->numberOfItems = $numberOfItems;
-    }
-
-    function setIsActiveFacet($isActiveFacet)
+    /**
+     * @param bool $isActiveFacet
+     */
+    public function setIsActiveFacet($isActiveFacet)
     {
         $this->isActiveFacet = $isActiveFacet;
     }
 
-//    function setGroupName($groupName)
-//    {
-//        $this->groupName = $groupName;
-//    }
+    /**
+     * @return int
+     */
+    public function getNumberOfItems()
+    {
+        return $this->numberOfItems;
+    }
+
+    /**
+     * @param int $numberOfItems
+     */
+    public function setNumberOfItems($numberOfItems)
+    {
+        $this->numberOfItems = $numberOfItems;
+    }
 
 }

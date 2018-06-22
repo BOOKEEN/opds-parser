@@ -17,7 +17,7 @@ class Contributor
     /**
      * @return Link[]
      */
-    function getLinkList()
+    public function getLinkList()
     {
         return $this->linkList;
     }
@@ -25,7 +25,7 @@ class Contributor
     /**
      * @param Link[] $linkList
      */
-    function setLinkList(array $linkList)
+    public function setLinkList(array $linkList)
     {
         $this->linkList = $linkList;
     }
@@ -33,16 +33,15 @@ class Contributor
     /**
      * @param Link $link
      */
-    function addLink(Link $link)
+    public function addLink(Link $link)
     {
         $this->linkList[] = $link;
     }
 
     /**
-     * 
      * @return string
      */
-    function getName()
+    public function getName()
     {
         return $this->name;
     }
@@ -50,7 +49,7 @@ class Contributor
     /**
      * @param string $name
      */
-    function setName($name)
+    public function setName($name)
     {
         $this->name = $name;
     }

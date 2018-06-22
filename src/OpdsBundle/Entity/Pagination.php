@@ -17,31 +17,31 @@ class Pagination
     /**
      * @return int
      */
-    function getItemsPerPage()
+    public function getItemsPerPage()
     {
         return $this->itemsPerPage;
     }
 
     /**
-     * @return int
-     */
-    function getNumberOfItem()
-    {
-        return $this->numberOfItem;
-    }
-
-    /**
      * @param int $itemsPerPage
      */
-    function setItemsPerPage($itemsPerPage)
+    public function setItemsPerPage($itemsPerPage)
     {
         $this->itemsPerPage = $itemsPerPage;
     }
 
     /**
+     * @return int
+     */
+    public function getNumberOfItem()
+    {
+        return $this->numberOfItem;
+    }
+
+    /**
      * @param int $numberOfItem
      */
-    function setNumberOfItem($numberOfItem)
+    public function setNumberOfItem($numberOfItem)
     {
         $this->numberOfItem = $numberOfItem;
     }

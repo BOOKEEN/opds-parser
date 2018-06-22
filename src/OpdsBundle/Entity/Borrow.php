@@ -8,67 +8,105 @@ class Borrow
      * @var string 
      */
     private $identifier;
-    
-    private $format;
-    
-    private $protection;
-    
-    private $url;
+
     /**
-     *
+     * @var string 
+     */
+    private $format;
+
+    /**
+     * @var string 
+     */
+    private $protection;
+
+    /**
+     * @var string 
+     */
+    private $url;
+
+    /**
      * @var \DateTime
      */
     private $unavailableUntil;
-    
-    function getIdentifier()
+
+    /**
+     * @return string
+     */
+    public function getIdentifier()
     {
         return $this->identifier;
     }
 
-    function getFormat()
+    /**
+     * @return string
+     */
+    public function getFormat()
     {
         return $this->format;
     }
 
-    function getProtection()
+    /**
+     * @return string
+     */
+    public function getProtection()
     {
         return $this->protection;
     }
 
-    function getUnavailableUntil()
-    {
-        return $this->unavailableUntil;
-    }
-
-    function setIdentifier($identifier)
-    {
-        $this->identifier = $identifier;
-    }
-
-    function setFormat($format)
-    {
-        $this->format = $format;
-    }
-
-    function setProtection($protection)
-    {
-        $this->protection = $protection;
-    }
-
-    function setUnavailableUntil(\DateTime $unavailableUntil)
-    {
-        $this->unavailableUntil = $unavailableUntil;
-    }
-
-    function getUrl()
+    /**
+     * @return string
+     */
+    public function getUrl()
     {
         return $this->url;
     }
 
-    function setUrl($url)
+    /**
+     * @return \DateTime
+     */
+    public function getUnavailableUntil()
+    {
+        return $this->unavailableUntil;
+    }
+
+    /**
+     * @param string $identifier
+     */
+    public function setIdentifier($identifier)
+    {
+        $this->identifier = $identifier;
+    }
+
+    /**
+     * @param string $format
+     */
+    public function setFormat($format)
+    {
+        $this->format = $format;
+    }
+
+    /**
+     * @param string $protection
+     */
+    public function setProtection($protection)
+    {
+        $this->protection = $protection;
+    }
+
+    /**
+     * @param string $url
+     */
+    public function setUrl($url)
     {
         $this->url = $url;
     }
 
+    /**
+     * @param \DateTime $unavailableUntil
+     */
+    public function setUnavailableUntil(\DateTime $unavailableUntil)
+    {
+        $this->unavailableUntil = $unavailableUntil;
+    }
 
 }

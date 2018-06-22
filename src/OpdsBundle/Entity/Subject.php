@@ -22,7 +22,7 @@ class Subject
     /**
      * @return string
      */
-    function getCode()
+    public function getCode()
     {
         return $this->code;
     }
@@ -30,7 +30,7 @@ class Subject
     /**
      * @return string
      */
-    function getName()
+    public function getName()
     {
         return $this->name;
     }
@@ -38,7 +38,7 @@ class Subject
     /**
      * @return string
      */
-    function getScheme()
+    public function getScheme()
     {
         return $this->scheme;
     }
@@ -47,7 +47,7 @@ class Subject
      * 
      * @param string $code
      */
-    function setCode($code)
+    public function setCode($code)
     {
         $this->code = $code;
     }
@@ -56,7 +56,7 @@ class Subject
      * 
      * @param string $name
      */
-    function setName($name)
+    public function setName($name)
     {
         $this->name = $name;
     }
@@ -65,7 +65,7 @@ class Subject
      * 
      * @param string $scheme
      */
-    function setScheme($scheme)
+    public function setScheme($scheme)
     {
         $this->scheme = $scheme;
     }

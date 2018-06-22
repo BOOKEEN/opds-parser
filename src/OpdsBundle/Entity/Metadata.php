@@ -5,109 +5,14 @@ namespace OpdsBundle\Entity;
 class Metadata
 {
     /**
-     * EAN papier
-     * @var type 
-     */
-    private $source;
-    
-    private $numberPages;
-    private $fileSize;
-    
-    /**
-     * @var \DateTime
-     */
-    private $issuedAt;
-    
-    /**
-     * @var Price[]
-     */
-    private $priceList;
-    
-    /**
-     *
-     * @var Borrow[]
-     */
-    private $borrowList;
-    
-    function getIssuedAt()
-    {
-        return $this->issuedAt;
-    }
-
-    function setIssuedAt(\DateTime $issuedAt)
-    {
-        $this->issuedAt = $issuedAt;
-    }
-
-        function getSource()
-    {
-        return $this->source;
-    }
-
-    function setSource($source)
-    {
-        $this->source = $source;
-    }
-    
-    function getPriceList()
-    {
-        return $this->priceList;
-    }
-
-    function setPriceList(array $priceList)
-    {
-        $this->priceList = $priceList;
-    }
-    
-    function addPrice(Price $price)
-    {
-        $this->priceList[] = $price;
-    }
-
-    function getBorrowList()
-    {
-        return $this->borrowList;
-    }
-
-    function setBorrowList(array $borrowList)
-    {
-        $this->borrowList = $borrowList;
-    }
-    
-    function addBorrow(Borrow $borrow)
-    {
-        $this->borrowList[] = $borrow;
-    }
-
-        
-    function getNumberPages()
-    {
-        return $this->numberPages;
-    }
-
-    function getFileSize()
-    {
-        return $this->fileSize;
-    }
-
-    function setNumberPages($numberPages)
-    {
-        $this->numberPages = $numberPages;
-    }
-
-    function setFileSize($fileSize)
-    {
-        $this->fileSize = $fileSize;
-    }
-
-        
-        
-    //-----------
-    /**
-     *
      * @var Contributor[] 
      */
     private $authorList;
+
+    /**
+     * @var Borrow[]
+     */
+    private $borrowList;
 
     /**
      * @var string
@@ -115,17 +20,21 @@ class Metadata
     private $description;
 
     /**
-     * Extent non déterminé
-     *
-     * @var  string
+     * @var string
      */
-//    private $extent;
+    private $fileSize;
 
     /**
      * EAN numérique
+     *
      * @var string
      */
     private $identifier;
+
+    /**
+     * @var \DateTime
+     */
+    private $issuedAt;
 
     /**
      * @var string
@@ -133,18 +42,21 @@ class Metadata
     private $language;
 
     /**
-     *
-     * @var \DateTime
+     * @var string
      */
-    private $updatedAt;
+    private $numberPages;
 
     /**
-     * @var DateTime
+     * @var Price[]
+     */
+    private $priceList;
+
+    /**
+     * @var \DateTime
      */
     private $publicationDate;
 
     /**
-     *
      * @var Contributor[] 
      */
     private $publisherList;
@@ -153,6 +65,13 @@ class Metadata
      * @var string
      */
     private $rights;
+
+    /**
+     * EAN papier
+     *
+     * @var string 
+     */
+    private $source;
 
     /**
      * @var Subject[]
@@ -165,207 +84,305 @@ class Metadata
     private $title;
 
     /**
-     * @return string
+     * @var \DateTime
      */
-    function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * @return string
-     */
-//    function getExtent()
-//    {
-//        return $this->extent;
-//    }
-
-    /**
-     * @return string
-     */
-    function getIdentifier()
-    {
-        return $this->identifier;
-    }
-
-    /**
-     * @return string
-     */
-    function getLanguage()
-    {
-        return $this->language;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    function getUpdatedAt()
-    {
-        return $this->updatedAt;
-    }
-
-    /**
-     * @return DateTime
-     */
-    function getPublicationDate()
-    {
-        return $this->publicationDate;
-    }
-
-    /**
-     * @return string
-     */
-    function getRights()
-    {
-        return $this->rights;
-    }
-
-    /**
-     * @return Subject[]
-     */
-    function getSubjectList()
-    {
-        return $this->subjectList;
-    }
-
-    /**
-     * @return string
-     */
-    function getTitle()
-    {
-        return $this->title;
-    }
+    private $updatedAt;
 
     /**
      * @return Contributor[]
      */
-    function getPublisherList()
-    {
-        return $this->publisherList;
-    }
-
-    /**
-     * @return Contributor[]
-     */
-    function getAuthorList()
+    public function getAuthorList()
     {
         return $this->authorList;
     }
 
     /**
-     * 
-     * @param string $description
-     */
-    function setDescription($description)
-    {
-        $this->description = $description;
-    }
-
-    /**
-     * 
-     * @param string $extent
-     */
-//    function setExtent($extent)
-//    {
-//        $this->extent = $extent;
-//    }
-
-    /**
-     * @param string $identifier
-     */
-    function setIdentifier($identifier)
-    {
-        $this->identifier = $identifier;
-    }
-
-    /**
-     * @param string $language
-     */
-    function setLanguage($language)
-    {
-        $this->language = $language;
-    }
-
-    /**
-     * @param \DateTime $updatedAt
-     */
-    function setUpdatedAt(\DateTime $updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
-    /**
-     * @param \DateTime $publicationDate
-     */
-    function setPublicationDate($publicationDate)
-    {
-        $this->publicationDate = $publicationDate;
-    }
-
-    /**
-     * @param string $rights
-     */
-    function setRights($rights)
-    {
-        $this->rights = $rights;
-    }
-
-    /**
-     * @param Subject[] $subjectList
-     */
-    function setSubjectList(array $subjectList)
-    {
-        $this->subjectList = $subjectList;
-    }
-
-    /**
-     * 
-     * @param string $title
-     */
-    function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    /**
-     * @param Contributor[] $publisherList
-     */
-    function setPublisherList(array $publisherList)
-    {
-        $this->publisherList = $publisherList;
-    }
-
-    /**
      * @param Contributor[] $authorList
      */
-    function setAuthorList(array $authorList)
+    public function setAuthorList(array $authorList)
     {
         $this->authorList = $authorList;
     }
 
     /**
+     * @param Contributor $author
+     */
+    public function addAuthor(Contributor $author)
+    {
+        $this->authorList[] = $author;
+    }
+
+    /**
+     * @return Borrow[]
+     */
+    public function getBorrowList()
+    {
+        return $this->borrowList;
+    }
+
+    /**
+     * @param Borrow[] $borrowList
+     */
+    public function setBorrowList(array $borrowList)
+    {
+        $this->borrowList = $borrowList;
+    }
+
+    /**
+     * @param Borrow $borrow
+     */
+    public function addBorrow(Borrow $borrow)
+    {
+        $this->borrowList[] = $borrow;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileSize()
+    {
+        return $this->fileSize;
+    }
+
+    /**
+     * 
+     * @param string $fileSize
+     */
+    public function setFileSize($fileSize)
+    {
+        $this->fileSize = $fileSize;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+
+    /**
+     * @param string $identifier
+     */
+    public function setIdentifier($identifier)
+    {
+        $this->identifier = $identifier;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getIssuedAt()
+    {
+        return $this->issuedAt;
+    }
+
+    /**
+     * @param \DateTime $issuedAt
+     */
+    public function setIssuedAt(\DateTime $issuedAt)
+    {
+        $this->issuedAt = $issuedAt;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+    /**
+     * @param string $language
+     */
+    public function setLanguage($language)
+    {
+        $this->language = $language;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNumberPages()
+    {
+        return $this->numberPages;
+    }
+
+    /**
+     * @param string $numberPages
+     */
+    public function setNumberPages($numberPages)
+    {
+        $this->numberPages = $numberPages;
+    }
+
+    /**
+     * @return Price[]
+     */
+    public function getPriceList()
+    {
+        return $this->priceList;
+    }
+
+    /**
+     * @param Price[] $priceList
+     */
+    public function setPriceList(array $priceList)
+    {
+        $this->priceList = $priceList;
+    }
+
+    /**
+     * @param Price $price
+     */
+    public function addPrice(Price $price)
+    {
+        $this->priceList[] = $price;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getPublicationDate()
+    {
+        return $this->publicationDate;
+    }
+
+    /**
+     * @param \DateTime $publicationDate
+     */
+    public function setPublicationDate($publicationDate)
+    {
+        $this->publicationDate = $publicationDate;
+    }
+
+    /**
+     * @return Contributor[]
+     */
+    public function getPublisherList()
+    {
+        return $this->publisherList;
+    }
+
+    /**
+     * @param Contributor[] $publisherList
+     */
+    public function setPublisherList(array $publisherList)
+    {
+        $this->publisherList = $publisherList;
+    }
+
+    /**
      * @param Contributor $publisher
      */
-    function addPublisher(Contributor $publisher)
+    public function addPublisher(Contributor $publisher)
     {
         $this->publisherList[] = $publisher;
     }
 
     /**
+     * @return string
+     */
+    public function getRights()
+    {
+        return $this->rights;
+    }
+
+    /**
+     * @param string $rights
+     */
+    public function setRights($rights)
+    {
+        $this->rights = $rights;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param string $source
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
+    }
+
+    /**
+     * @return Subject[]
+     */
+    public function getSubjectList()
+    {
+        return $this->subjectList;
+    }
+
+    /**
+     * @param Subject[] $subjectList
+     */
+    public function setSubjectList(array $subjectList)
+    {
+        $this->subjectList = $subjectList;
+    }
+
+    /**
      * @param Subject $subject
      */
-    function addSubject(Subject $subject)
+    public function addSubject(Subject $subject)
     {
         $this->subjectList[] = $subject;
     }
 
     /**
-     * 
-     * @param Contributor $author
+     * @return string
      */
-    function addAuthor(Contributor $author)
+    public function getTitle()
     {
-        $this->authorList[] = $author;
+        return $this->title;
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param \DateTime $updatedAt
+     */
+    public function setUpdatedAt(\DateTime $updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
     }
 
 }
