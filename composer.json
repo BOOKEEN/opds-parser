@@ -1,5 +1,5 @@
 {
-    "name": "bookeen/opdsparser",
+    "name": "bookeen/opds-parser",
     "description": "Parse OPDS XML",
     "type": "composer-plugin",
     "keywords": ["OPDS", "bookeen"],
@@ -12,7 +12,6 @@
             "email": "bookeen.web@bookeen.com"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "Bookeen\\OpdsBundle\\": "src"
