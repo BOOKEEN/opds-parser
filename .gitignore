@@ -1,3 +1,5 @@
 .twgit_*
 /build/
 /phpunit.xml
+
+/vendor/

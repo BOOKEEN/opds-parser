@@ -1,29 +1,21 @@
 {
-    "name": "bookeen/opds-parser",
-    "license": "MIT",
-    "type": "bundle",
+    "name": "bookeen/opdsparser",
     "description": "Parse OPDS XML",
-    "keywords": ["OPDS", "bookeen"], 
-    "authors": [  
-        {  
-            "name": "Bookeen",  
-            "email": "bookeen.web@bookeen.com"  
-        }  
-    ],  
+    "type": "composer-plugin",
+    "keywords": ["OPDS", "bookeen"],
+    "require": {
+        "php": "5.5.9"
+    },
+    "authors": [
+        {
+            "name": "Bookeen",
+            "email": "bookeen.web@bookeen.com"
+        }
+    ],
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "Bookeen\\OpdsBundle\\": "src"
         }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/"
-        }
-    },
-    "require": {
-        "php": ">=5.5.9"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^5.7"
     }
 }
