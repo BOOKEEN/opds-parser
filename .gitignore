@@ -1,5 +1,5 @@
-.twgit_*
+.twgit*
+/.web-server-pid
 /build/
 /phpunit.xml
-
 /vendor/
