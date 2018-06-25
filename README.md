@@ -39,3 +39,13 @@ Il existe 3 fonctions pour parser les flux OPDS :
 * parseFile : lit un flux OPDS depuis un fichier
 * parseURL : lit un flux OPDS depuis une URL
 * parseSearchUrl : parse le flux de type _application/opensearchdescription+xml_ pour connaître les URL de recherche disponibles
+
+
+
+Exemple
+--------
+Exemples de flux :
+
+* http://www.feedbooks.com/catalog.atom
+* http://longueuil.pretnumerique.ca/catalog.atom
+* https://framabookin.org/b/opds/
