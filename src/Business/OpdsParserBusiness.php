@@ -9,7 +9,6 @@ use OpdsBundle\Entity\Feed;
 use OpdsBundle\Entity\Link;
 use OpdsBundle\Entity\Metadata;
 use OpdsBundle\Entity\Navigation;
-use OpdsBundle\Entity\OpdsMetadata;
 use OpdsBundle\Entity\Pagination;
 use OpdsBundle\Entity\Price;
 use OpdsBundle\Entity\Publication;
@@ -135,7 +134,7 @@ class OpdsParserBusiness
      * 
      * @param \SimpleXMLElement $xmldata
      *
-     * @return OpdsMetadata|null
+     * @return Pagination|null
      */
     private function parsePagination($xmldata)
     {
