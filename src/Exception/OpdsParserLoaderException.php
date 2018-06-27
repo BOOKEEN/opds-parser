@@ -2,7 +2,7 @@
 
 namespace OpdsBundle\Exception;
 
-class OpdsParserLoaderException
+class OpdsParserLoaderException extends OpdsParserException
 {
     
 }
