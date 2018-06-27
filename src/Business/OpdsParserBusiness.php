@@ -18,6 +18,9 @@ use OpdsBundle\Exception\OpdsParserNotFoundException;
 use OpdsBundle\Exception\OpdsParserNoTitleException;
 use OpdsBundle\Utils\XmlLoaderUtils;
 
+/**
+ * @see http://opds-spec.org/specs/opds-catalog-1-1-20110627/ pour les constantes ODPS_REL_* et ODPS_TYPE_*
+ */
 class OpdsParserBusiness
 {
     const ODPS_REL_ALTERNATE = 'alternate';
