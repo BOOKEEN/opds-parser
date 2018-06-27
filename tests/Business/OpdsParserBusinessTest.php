@@ -9,6 +9,7 @@ use OpdsBundle\Entity\Link;
 use OpdsBundle\Entity\Metadata;
 use OpdsBundle\Entity\Price;
 use OpdsBundle\Entity\Publication;
+use OpdsBundle\Entity\Search;
 use OpdsBundle\Entity\Subject;
 use PHPUnit\Framework\TestCase;
 
@@ -44,22 +45,67 @@ class OpdsParserBusinessTest extends TestCase
 //    {
 //        
 //    }
-//
-//    public function testParseSearch()
-//    {
-//        
-//    }
-//
+
+    /**
+     * test de parseSearch
+     */
+    public function testParseSearch()
+    {
+        $business = new OpdsParserBusiness();
+        $businessReflection = $this->getOpdsParserBusinessPrivate($business, 'parseSearch');
+
+        $xml = new \SimpleXMLElement(<<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Feedbooks</ShortName>
+  <Description>Search on Feedbooks</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <Image type="image/x-icon" width="16" height="16">http://www.feedbooks.com/favicon.ico</Image>
+  <Url type="application/atom+xml" template="http://www.feedbooks.com/search.atom?query={searchTerms}"/>
+  <Url type="application/x-suggestions+json" rel="suggestions" template="http://www.feedbooks.com/search.json?query={searchTerms}"/>
+  <Query role="example" searchTerms="robot" />
+</OpenSearchDescription>
+XML
+        );
+
+        $search1 = new Search();
+        $search1->setTemplate('http://www.feedbooks.com/search.atom?query={searchTerms}');
+        $search1->setType(Search::TYPE_ATOM);
+
+        $search2 = new Search();
+        $search2->setRel('suggestions');
+        $search2->setTemplate('http://www.feedbooks.com/search.json?query={searchTerms}');
+        $search2->setType(Search::TYPE_JSON);
+        
+        $list = array(
+            Search::TYPE_ATOM => $search1,
+            Search::TYPE_JSON => $search2,
+        );
+
+        $this->assertEquals($list, $businessReflection->invokeArgs($business, array($xml)), 'Method: parseSearch');
+    }
+
 //    public function testParse()
 //    {
 //        
 //    }
-//
-//    public function testParsePagination()
-//    {
-//        
-//    }
-//
+
+    /**
+     * 
+     * @param \SimpleXMLElement $feed
+     * @param Pagination|null $expected
+     * 
+     * @dataProvider parsePaginationProvider
+     */
+    public function testParsePagination($feed, $expected)
+    {
+        $business = new OpdsParserBusiness();
+        $businessReflection = $this->getOpdsParserBusinessPrivate($business, 'parsePagination');
+
+        $this->assertEquals($expected, $businessReflection->invokeArgs($business, array($feed)), 'Method: parsePagination');
+    }
+
 //    public function testParseFeed()
 //    {
 //        
@@ -69,7 +115,7 @@ class OpdsParserBusinessTest extends TestCase
 //    {
 //        
 //    }
-//
+
 //    public function testParseFeedEntry()
 //    {
 //        
@@ -91,6 +137,31 @@ class OpdsParserBusinessTest extends TestCase
         $this->assertEquals($expected, $businessReflection->invokeArgs($business, array($entry)), 'Method: parseEntry');
     }
 
+    /**
+     * @return array
+     */
+    public function parsePaginationProvider()
+    {
+        $pagination = new \OpdsBundle\Entity\Pagination();
+        $pagination->setItemsPerPage(50);
+        $pagination->setNumberOfItem(6099);
+        
+        return array(
+            array(
+                $this->getFeedbookCategoryFeedXml(),
+                $pagination,
+            ),
+            array(
+                new \SimpleXMLElement(<<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<feed></feed>
+XML
+                ),
+                null,
+            ),
+        );
+    }
+    
     /**
      * @return array
      */
@@ -409,6 +480,90 @@ XML
 XML
             ),
             $publication,
+        );
+    }
+    
+    private function getFeedbookCategoryFeedXml()
+    {
+        return new \SimpleXMLElement(<<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<feed
+    xmlns:opds="http://opds-spec.org/2010/catalog"
+    xmlns:app="http://www.w3.org/2007/app"
+    xmlns="http://www.w3.org/2005/Atom"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:schema="http://schema.org/"
+    xmlns:thr="http://purl.org/syndication/thread/1.0"
+    xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr"
+    xmlns:odl="http://opds-spec.org/odl">
+    <id>http://www.feedbooks.com/store/top.atom?category=FBFIC027000</id>
+    <title>Litt&#233;rature sentimentale</title>
+    <updated>2018-06-20T09:04:15Z</updated>
+    <icon>http://assets1.feedbooks.net/images/favicon.ico?t=1529393352</icon>
+    <author>
+        <name>Feedbooks</name>
+        <uri>http://www.feedbooks.com</uri>
+        <email>support@feedbooks.zendesk.com</email>
+    </author>
+    <link type="application/atom+xml; profile=opds-catalog; kind=acquisition" title="Meilleures Ventes" rel="self" href="http://www.feedbooks.com/store/top.atom?category=FBFIC027000"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=navigation" title="Accueil" rel="start" href="http://www.feedbooks.com/catalog.atom"/>
+    <link type="application/opensearchdescription+xml" title="Rechercher sur Feedbooks" rel="search" href="http://www.feedbooks.com/opensearch.xml"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" title="Biblioth&#232;que" rel="http://opds-spec.org/shelf" href="https://www.feedbooks.com/user/bookshelf.atom"/>
+    <opensearch:totalResults>6099</opensearch:totalResults>
+    <opensearch:itemsPerPage>50</opensearch:itemsPerPage>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" title="Page Suivante" rel="next" href="http://www.feedbooks.com/store/top.atom?category=FBFIC027000&amp;page=2"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" title="Nouveaut&#233;s" rel="http://opds-spec.org/sort/new" href="http://www.feedbooks.com/store/recent.atom?category=FBFIC027000"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" title="Notre S&#233;lection" rel="http://opds-spec.org/featured" href="http://www.feedbooks.com/store/selection.atom?category=FBFIC027000"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" title="Prix Litt&#233;raires" rel="http://opds-spec.org/featured" href="http://www.feedbooks.com/store/awards.atom?category=FBFIC027000"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="1019" title="Historique" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027050"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="817" title="Bit lit" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027120"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="794" title="Contemporain" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027020"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="594" title="Adulte" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027010"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="305" title="Suspense" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027110"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="115" title="Fantasy" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027030"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="46" title="Nouvelles" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027080"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="23" title="Western" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027100"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="7" title="Voyage temporel" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027090"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="6" title="Gothique" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027040"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="1" title="R&#233;gence" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027070"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="18379" title="Anglais" opds:facetGroup="Langue" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027000&amp;lang=en"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="6087" opds:activeFacet="true" title="Fran&#231;ais" opds:facetGroup="Langue" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027000&amp;lang=fr"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="5123" title="Allemand" opds:facetGroup="Langue" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027000&amp;lang=de"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="8104" title="Espagnol" opds:facetGroup="Langue" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027000&amp;lang=es"/>
+    <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="9491" title="Italien" opds:facetGroup="Langue" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027000&amp;lang=it"/>
+    <entry>
+        <title>La ran&#231;on du d&#233;sir</title>
+        <id>http://www.feedbooks.com/item/2707366</id>
+        <updated>2018-05-08T10:56:59Z</updated>
+        <dcterms:identifier xsi:type="dcterms:URI">urn:ISBN:9782290142233</dcterms:identifier>
+        <dcterms:source xsi:type="dcterms:URI">urn:ISBN:9782290142264</dcterms:source>
+        <dcterms:language>fr</dcterms:language>
+        <dcterms:publisher>J'ai Lu</dcterms:publisher>
+        <dcterms:issued>2018-04-24</dcterms:issued>
+        <dcterms:extent>384 pages</dcterms:extent>
+        <dcterms:extent>2 Mo</dcterms:extent>
+        <author>
+            <name>Penelope Williamson</name>
+            <uri>http://www.feedbooks.com/search?query=contributor%3A%22Penelope+Williamson%22</uri>
+        </author>
+        <published>2018-03-30T11:08:47Z</published>
+        <summary>&#202;tre servante dans une auberge du port de Boston n&#8217;offre gu&#232;re de perspectives d&#8217;avenir. Mais Angie est pauvre et doit trouver un moyen pour survivre. Aussi d&#233;cide-t-elle de saisir sa chance lorsqu&#8217;elle tombe sur une annonce : dans le Maine, un p&#232;...</summary>
+        <category term="FBFIC000000" scheme="http://www.feedbooks.com/categories" label="Fiction"/>
+        <category term="FBFIC027000" scheme="http://www.feedbooks.com/categories" label="Litt&#233;rature sentimentale"/>
+        <category term="FBFIC027050" scheme="http://www.feedbooks.com/categories" label="Historique"/>
+        <link type="text/html" title="Voir sur Feedbooks" href="http://www.feedbooks.com/item/2707366" rel="alternate"/>
+        <link type="image/jpeg" href="http://covers.feedbooks.net/item/2707366.jpg?size=large&amp;t=1522400930" rel="http://opds-spec.org/image"/>
+        <link type="image/jpeg" href="http://covers.feedbooks.net/item/2707366.jpg?size=large&amp;t=1522400930" rel="http://opds-spec.org/image/thumbnail"/>
+        <link type="text/html" rel="http://opds-spec.org/acquisition/buy" href="https://www.feedbooks.com/item/2707366/buy">
+            <opds:price currencycode="EUR">5.99</opds:price>
+            <opds:indirectAcquisition type="application/epub+zip"/>
+        </link>
+        <link type="application/epub+zip" rel="http://opds-spec.org/acquisition/sample" href="http://www.feedbooks.com/item/2707366/preview"/>
+        <link type="application/atom+xml;type=entry;profile=opds-catalog" title="Entr&#233;e compl&#232;te" rel="alternate" href="http://www.feedbooks.com/item/2707366.atom"/>
+    </entry>
+</feed>
+XML
         );
     }
 }
