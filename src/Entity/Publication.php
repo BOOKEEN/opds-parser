@@ -81,11 +81,11 @@ class Publication
     }
 
     /**
-     * @param Link $image
+     * @param Link $link
      */
-    public function addLink(Link $image)
+    public function addLink(Link $link)
     {
-        $this->linkList[] = $image;
+        $this->linkList[] = $link;
     }
 
     /**

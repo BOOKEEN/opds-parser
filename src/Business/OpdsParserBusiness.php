@@ -384,6 +384,7 @@ class OpdsParserBusiness
 
                 if ($link->getRel() === self::ODPS_REL_ACQUISITION_BUY) {
                     $price = new Price();
+                    $price->setUrl($link->getHref());
 
                     foreach ($xmlLink->children('opds', true) as $key => $value) {
                         $attributeList = $value->attributes();
@@ -402,11 +403,13 @@ class OpdsParserBusiness
                     }
 
                     $metadata->addPrice($price);
+                    continue;
                 }
                 
                 if ($link->getRel() == self::ODPS_REL_ACQUISITION_BORROW) {
                     $borrow = new Borrow();
                     $borrow->setIdentifier((string) $xmlLink->identifier);
+                    $borrow->setUrl($link->getHref());
 
                     foreach ($xmlLink->children('opds', true) as $key => $value) {
                         $attributeList = $value->attributes();
@@ -435,6 +438,7 @@ class OpdsParserBusiness
                     }
 
                     $metadata->addBorrow($borrow);
+                    continue;
                 }
 
                 if (!isset($xmlLink['rel'])) {

@@ -20,6 +20,11 @@ class Price
     private $price;
 
     /**
+     * @var string
+     */
+    private $url;
+
+    /**
      * @return string
      */
     public function getCurrency()
@@ -66,6 +71,22 @@ class Price
     public function setPrice($price)
     {
         $this->price = $price;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * @param string $url
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
     }
 
 }
