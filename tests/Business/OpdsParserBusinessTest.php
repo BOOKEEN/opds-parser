@@ -14,6 +14,7 @@ use OpdsBundle\Entity\Price;
 use OpdsBundle\Entity\Publication;
 use OpdsBundle\Entity\Search;
 use OpdsBundle\Entity\Subject;
+use OpdsBundle\Exception\OpdsParserNoTitleException;
 use PHPUnit\Framework\TestCase;
 
 class OpdsParserBusinessTest extends TestCase
@@ -33,21 +34,6 @@ class OpdsParserBusinessTest extends TestCase
 
         return $parserMethod;
     }
-    
-//    public function testParseFile()
-//    {
-//        
-//    }
-//
-//    public function testParseURL($u)
-//    {
-//        
-//    }
-//
-//    public function testParseSearchUrl()
-//    {
-//        
-//    }
 
     /**
      * test de parseSearch
@@ -74,25 +60,39 @@ XML
 
         $search1 = new Search();
         $search1->setTemplate('http://www.feedbooks.com/search.atom?query={searchTerms}');
-        $search1->setType(Search::TYPE_ATOM);
+        $search1->setType(Link::TYPE_ATOM);
 
         $search2 = new Search();
         $search2->setRel('suggestions');
         $search2->setTemplate('http://www.feedbooks.com/search.json?query={searchTerms}');
-        $search2->setType(Search::TYPE_JSON);
+        $search2->setType(Link::TYPE_JSON);
         
         $list = array(
-            Search::TYPE_ATOM => $search1,
-            Search::TYPE_JSON => $search2,
+            Link::TYPE_ATOM => $search1,
+            Link::TYPE_JSON => $search2,
         );
 
         $this->assertEquals($list, $businessReflection->invokeArgs($business, array($xml)), 'Method: parseSearch');
     }
 
-//    public function testParse()
-//    {
-//        
-//    }
+    /**
+     * test de parse
+     */
+    public function testParseException()
+    {
+        $business = new OpdsParserBusiness();
+        $businessReflection = $this->getOpdsParserBusinessPrivate($business, 'parse');
+
+        $emptyXml = new \SimpleXMLElement(<<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+</OpenSearchDescription>
+XML
+        );
+
+        $this->expectException(OpdsParserNoTitleException::class);
+        $businessReflection->invokeArgs($business, array($emptyXml));
+    }
 
     /**
      * test de parsePagination
@@ -198,7 +198,7 @@ XML
 
         $linkMenu = new Link();
         $linkMenu->setHref('http://www.feedbooks.com/catalog.atom');
-        $linkMenu->setRel(OpdsParserBusiness::ODPS_REL_START);
+        $linkMenu->setRel(Link::REL_S_START);
         $linkMenu->setTitle('Accueil');
         $linkMenu->setTypeLink('application/atom+xml;profile=opds-catalog;kind=navigation');
 

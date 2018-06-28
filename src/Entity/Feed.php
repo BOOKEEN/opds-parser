@@ -70,7 +70,7 @@ class Feed
     }
 
     /**
-     * @return array
+     * @return Publication[]
      */
     public function getCollectionPublicationList()
     {
@@ -95,7 +95,7 @@ class Feed
 
     /**
      * 
-     * @param array $collectionPublicationList
+     * @param Publication[] $collectionPublicationList
      */
     public function setCollectionPublicationList(array $collectionPublicationList)
     {
