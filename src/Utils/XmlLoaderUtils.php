@@ -23,7 +23,10 @@ class XmlLoaderUtils
 
             throw new OpdsParserNotFoundException();
         }
-        $content = fread($handle, filesize($file));
+
+        while (!feof($handle)) {
+            $content .= fread($handle, 8192); // 8192 : nombre d'octets équivalent à la taille d'un bloc
+        }
         fclose($handle);
 
         return new \SimpleXMLElement($content);
