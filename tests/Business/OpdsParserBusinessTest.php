@@ -5,8 +5,11 @@ namespace OpdsBundle\Test\Business;
 use OpdsBundle\Business\OpdsParserBusiness;
 use OpdsBundle\Entity\Borrow;
 use OpdsBundle\Entity\Contributor;
+use OpdsBundle\Entity\Facet;
+use OpdsBundle\Entity\Feed;
 use OpdsBundle\Entity\Link;
 use OpdsBundle\Entity\Metadata;
+use OpdsBundle\Entity\Pagination;
 use OpdsBundle\Entity\Price;
 use OpdsBundle\Entity\Publication;
 use OpdsBundle\Entity\Search;
@@ -92,7 +95,8 @@ XML
 //    }
 
     /**
-     * 
+     * test de parsePagination
+     *
      * @param \SimpleXMLElement $feed
      * @param Pagination|null $expected
      * 
@@ -110,11 +114,24 @@ XML
 //    {
 //        
 //    }
-//
-//    public function testParseFeedLink()
-//    {
-//        
-//    }
+
+    /**
+     * test de parseFeedLink
+     *
+     * @param \SimpleXMLElement $link
+     * @param Feed $expected
+     * 
+     * @dataProvider parseParseFeedLink
+     */
+    public function testParseFeedLink($link, $feed, $expected)
+    {
+        $business = new OpdsParserBusiness();
+        $businessReflection = $this->getOpdsParserBusinessPrivate($business, 'parseFeedLink');
+
+        $businessReflection->invokeArgs($business, array($link, &$feed));
+
+        $this->assertEquals($expected, $feed, 'Method: parseFeedLink');
+    }
 
 //    public function testParseFeedEntry()
 //    {
@@ -142,10 +159,10 @@ XML
      */
     public function parsePaginationProvider()
     {
-        $pagination = new \OpdsBundle\Entity\Pagination();
+        $pagination = new Pagination();
         $pagination->setItemsPerPage(50);
         $pagination->setNumberOfItem(6099);
-        
+
         return array(
             array(
                 $this->getFeedbookCategoryFeedXml(),
@@ -161,7 +178,83 @@ XML
             ),
         );
     }
-    
+
+    /**
+     * @return array
+     */
+    public function parseParseFeedLink()
+    {
+        $facet = new Facet();
+        $facet->setHref('/store/top.atom?category=FBFIC027020');
+        $facet->setIsActiveFacet(false);
+        $facet->setNumberOfItems(794);
+        $facet->setRel('http://opds-spec.org/facet');
+        $facet->setTitle('Contemporain');
+        $facet->setTypeLink('application/atom+xml;profile=opds-catalog;kind=acquisition');
+
+        $feedFacet = new Feed();
+        $feedFacet->addFacet($facet, 'Sous catégories');
+
+
+        $linkMenu = new Link();
+        $linkMenu->setHref('http://www.feedbooks.com/catalog.atom');
+        $linkMenu->setRel(OpdsParserBusiness::ODPS_REL_START);
+        $linkMenu->setTitle('Accueil');
+        $linkMenu->setTypeLink('application/atom+xml;profile=opds-catalog;kind=navigation');
+
+        $feedMenu = new Feed();
+        $feedMenu->addMenu($linkMenu);
+
+
+        $link = new Link();
+        $link->setHref('http://www.feedbooks.com/store/recent.atom?category=FBFIC027000');
+        $link->setRel('http://opds-spec.org/sort/new');
+        $link->setTitle('Nouveautés');
+        $link->setTypeLink('application/atom+xml;profile=opds-catalog;kind=acquisition');
+
+        $feedLink = new Feed();
+        $feedLink->addLink($link);
+
+        return array(
+            array(
+                new \SimpleXMLElement(<<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<link 
+    xmlns:opds="http://opds-spec.org/2010/catalog"
+    xmlns:thr="http://purl.org/syndication/thread/1.0"
+    type="application/atom+xml;profile=opds-catalog;kind=acquisition" thr:count="794" title="Contemporain" opds:facetGroup="Sous cat&#233;gories" rel="http://opds-spec.org/facet" href="/store/top.atom?category=FBFIC027020"/>
+XML
+                ),
+                new Feed(),
+                $feedFacet,
+            ),
+            array(
+                new \SimpleXMLElement(<<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<link 
+    xmlns:opds="http://opds-spec.org/2010/catalog"
+    xmlns:thr="http://purl.org/syndication/thread/1.0"
+    type="application/atom+xml;profile=opds-catalog;kind=navigation" title="Accueil" rel="start" href="http://www.feedbooks.com/catalog.atom"/>
+XML
+                ),
+                new Feed(),
+                $feedMenu,
+            ),
+            array(
+                new \SimpleXMLElement(<<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<link 
+    xmlns:opds="http://opds-spec.org/2010/catalog"
+    xmlns:thr="http://purl.org/syndication/thread/1.0"
+    type="application/atom+xml;profile=opds-catalog;kind=acquisition" title="Nouveaut&#233;s" rel="http://opds-spec.org/sort/new" href="http://www.feedbooks.com/store/recent.atom?category=FBFIC027000"/>
+XML
+                ),
+                new Feed(),
+                $feedLink,
+            ),
+        );
+    }
+
     /**
      * @return array
      */
@@ -482,7 +575,10 @@ XML
             $publication,
         );
     }
-    
+
+    /**
+     * @return \SimpleXMLElement
+     */
     private function getFeedbookCategoryFeedXml()
     {
         return new \SimpleXMLElement(<<<XML
@@ -566,4 +662,5 @@ XML
 XML
         );
     }
+
 }

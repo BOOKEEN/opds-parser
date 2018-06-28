@@ -65,7 +65,7 @@ class OpdsParserBusiness
     /**
      * 
      * @param string $url
-     * @param type $headers
+     * @param string[]|null $headers
      *
      * @return Feed|Publication
      */
@@ -95,7 +95,7 @@ class OpdsParserBusiness
      * 
      * @return Search[]
      */
-    private function parseSearch($xmlData)
+    private function parseSearch(\SimpleXMLElement $xmlData)
     {
         $list = array();
         foreach ($xmlData->Url as $value) {
@@ -118,7 +118,7 @@ class OpdsParserBusiness
      * @return Feed|Publication
      * @throws OpdsParserNoTitleException
      */
-    private function parse($xmldata)
+    private function parse(\SimpleXMLElement $xmldata)
     {
         if (!isset($xmldata->title)) {
 
@@ -134,12 +134,13 @@ class OpdsParserBusiness
     }
 
     /**
-     * 
+     * Met en forme la pagination si elle existe
+     *
      * @param \SimpleXMLElement $xmldata
      *
-     * @return Pagination|null
+     * @return Pagination|null null si elle n'existe pas
      */
-    private function parsePagination($xmldata)
+    private function parsePagination(\SimpleXMLElement $xmldata)
     {
         $pagination = new Pagination();
         $paginated = false;
@@ -166,7 +167,7 @@ class OpdsParserBusiness
      *
      * @return Feed
      */
-    private function parseFeed($xmldata)
+    private function parseFeed(\SimpleXMLElement $xmldata)
     {
         $feed = new Feed();
         $feed->setTitle((string) $xmldata->title);
@@ -189,9 +190,9 @@ class OpdsParserBusiness
     /**
      * 
      * @param \SimpleXMLElement $xmlLink
-     * @param Feed $feed passage par paramètre
+     * @param Feed $feed passage par référence
      */
-    private function parseFeedLink($xmlLink, Feed &$feed)
+    private function parseFeedLink(\SimpleXMLElement $xmlLink, Feed &$feed)
     {
         $groupName = null;
         $isActive = false;
@@ -220,9 +221,10 @@ class OpdsParserBusiness
             $link->setRel((string) $xmlLink['rel']);
         }
 
-        if (($link instanceof Facet)) {
+        if ($link instanceof Facet) {
+            // thr: préfix d'attribtut xmlns:thr="http://purl.org/syndication/thread/1.0"
             foreach ($xmlLink->attributes('thr', true) as $key => $value) {
-                if ($key === 'count') { // total non utilisé dans http://opds-spec.org/specs/opds-catalog-1-1-20110627
+                if ($key === 'count') { // 'thr:total' non utilisé dans http://opds-spec.org/specs/opds-catalog-1-1-20110627
                     $link->setNumberOfItems((int) $value);
                 }
             }
@@ -244,9 +246,9 @@ class OpdsParserBusiness
     /**
      * 
      * @param \SimpleXMLElement $xmlEntry
-     * @param Feed $feed passage par paramètre
+     * @param Feed $feed passage par référence
      */
-    private function parseFeedEntry($xmlEntry, Feed &$feed)
+    private function parseFeedEntry(\SimpleXMLElement $xmlEntry, Feed &$feed)
     {
         // liens de navigation
         if (count($xmlEntry->link) === 1 && strpos($xmlEntry->link['rel'], self::ODPS_REL_ACQUISITION) !== 0) {
@@ -296,7 +298,7 @@ class OpdsParserBusiness
      * 
      * @return Publication
      */
-    private function parseEntry($entry)
+    private function parseEntry(\SimpleXMLElement $entry)
     {
         $publication = new Publication();
         $metadata = new Metadata();
@@ -446,9 +448,9 @@ class OpdsParserBusiness
                 }
 
                 $rel = (string) $xmlLink['rel'];
-                if (($rel == 'collection') || ( $rel == self::ODPS_REL_GROUP)) {
+                if (($rel === 'collection') || ( $rel === self::ODPS_REL_GROUP)) {
                     // nothing to do
-                } elseif (($rel == self::ODPS_REL_IMAGE) || ( $rel == self::ODPS_REL_THUMBNAIL)) {
+                } elseif (($rel === self::ODPS_REL_IMAGE) || ( $rel === self::ODPS_REL_THUMBNAIL)) {
                     $publication->addImage($link);
                 } else {
                     $publication->addLink($link);

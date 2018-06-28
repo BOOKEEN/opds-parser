@@ -50,7 +50,7 @@ class XmlLoaderUtils
         }
 
         $content = curl_exec($ch);
-        if (!$content || empty($content)) {
+        if (!$content) {
 
             throw new OpdsParserLoaderException('Fail to load ' . $url);
         }

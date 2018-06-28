@@ -10,6 +10,8 @@ class Navigation extends Link
     private $content;
 
     /**
+     * URL de l'élément
+     *
      * @var string 
      */
     private $id;
