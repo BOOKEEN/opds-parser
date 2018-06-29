@@ -5,7 +5,7 @@ namespace OpdsBundle\Entity;
 class Search
 {
     /**
-     * cf self::TYPE_*
+     * cf link::TYPE_*
      *
      * @var string 
      */
