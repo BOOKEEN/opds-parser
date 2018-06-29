@@ -174,7 +174,7 @@ class OpdsParserBusiness
                     $groupName = (string) $value;
                     break;
                 case 'activeFacet':
-                    $isActive = (string) $value === 'true' ? true : false;
+                    $isActive = (string) $value === 'true';
                     break;
             }
         }
