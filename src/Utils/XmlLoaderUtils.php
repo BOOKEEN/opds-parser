@@ -23,7 +23,10 @@ class XmlLoaderUtils
 
             throw new OpdsParserNotFoundException();
         }
-        $content = fread($handle, filesize($file));
+
+        while (!feof($handle)) {
+            $content .= fread($handle, 8192); // 8192 : nombre d'octets équivalent à la taille d'un bloc
+        }
         fclose($handle);
 
         return new \SimpleXMLElement($content);
@@ -44,25 +47,16 @@ class XmlLoaderUtils
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         if ($headerList) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headerList);
         }
 
-        if (!ob_start()) {
-            throw new OpdsParserLoaderException('Output buffer error');
-        }
-        if (!curl_exec($ch)) {
+        $content = curl_exec($ch);
+        if (!$content) {
+
             throw new OpdsParserLoaderException('Fail to load ' . $url);
         }
-
-        curl_close($ch);
-        $content = ob_get_contents();
-
-        if (!$content) {
-            throw new OpdsParserLoaderException('Cannot return output buffer');
-        }
-
-        ob_end_clean();
 
         return new \SimpleXMLElement($content);
     }
