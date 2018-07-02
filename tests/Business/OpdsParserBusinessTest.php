@@ -9,6 +9,7 @@ use OpdsBundle\Entity\Facet;
 use OpdsBundle\Entity\Feed;
 use OpdsBundle\Entity\Link;
 use OpdsBundle\Entity\Metadata;
+use OpdsBundle\Entity\Navigation;
 use OpdsBundle\Entity\Pagination;
 use OpdsBundle\Entity\Price;
 use OpdsBundle\Entity\Publication;
@@ -110,9 +111,21 @@ XML
         $this->assertEquals($expected, $businessReflection->invokeArgs($business, array($feed)), 'Method: parsePagination');
     }
 
-//    public function testParseFeed()
+    /**
+     * test de parseFeed
+     * @TODO finir le provider
+     *
+     * @param \SimpleXMLElement $feed
+     * @param Feed $expected
+     * 
+     * @dataProvider parseParseFeedLinkProvider
+     */
+//    public function testParseFeed($feed, $expected)
 //    {
+//        $business = new OpdsParserBusiness();
+//        $businessReflection = $this->getOpdsParserBusinessPrivate($business, 'parseFeed');
 //        
+//        $this->assertEquals($expected, $businessReflection->invokeArgs($business, array($feed)), 'Method: parseFeed');
 //    }
 
     /**
@@ -133,10 +146,24 @@ XML
         $this->assertEquals($expected, $feed, 'Method: parseFeedLink');
     }
 
-//    public function testParseFeedEntry()
-//    {
-//        
-//    }
+    /**
+     * test de parseFeedEntry
+     * 
+     * @param \SimpleXMLElement $entry
+     * @param Feed $feed
+     * @param Feed $expected
+     * 
+     * @dataProvider parseFeedEntryProvider
+     */
+    public function testParseFeedEntry($entry, $feed, $expected)
+    {
+        $business = new OpdsParserBusiness();
+        $businessReflection = $this->getOpdsParserBusinessPrivate($business, 'parseFeedEntry');
+
+        $businessReflection->invokeArgs($business, array($entry, &$feed));
+
+        $this->assertEquals($expected, $feed, 'Method: parseFeedEntry');
+    }
 
     /**
      * test de parseEntry
@@ -179,6 +206,25 @@ XML
         );
     }
 
+    /**
+     * @return array
+     */
+    public function parseParseFeedLinkProvider()
+    {
+        $feed = new Feed();
+        
+        $feed->addPublication($this->getFeedbookEntry()[1]);
+        $feed->setPagination($this->parsePaginationProvider()[1]);
+        
+        
+        return array(
+            array(
+                $this->getFeedbookCategoryFeedXml(),
+                $feed,
+            ),
+        );
+    }
+    
     /**
      * @return array
      */
@@ -253,6 +299,58 @@ XML
                 $feedLink,
             ),
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function parseFeedEntryProvider()
+    {
+        $providerList = array();
+
+        $entryList = $this->parseEntryProvider();
+        foreach ($entryList as $test) {
+            $feed = new Feed();
+            $feed->addPublication($test[1]);
+
+            $providerList[] = array(
+                $test[0],
+                new Feed(),
+                $feed,
+            );
+        }
+
+        $navigation = new Navigation();
+        $navigation->setContent('Content here');
+        $navigation->setHref('http://www.feedbooks.com/store/categories/FBNFC000000.atom');
+        $navigation->setId('http://www.feedbooks.com/store/categories/FBNFC000000.atom');
+        $navigation->setRel('subsection');
+        $navigation->setTitle('Non-Fiction');
+        $navigation->setTypeLink('application/atom+xml;profile=opds-catalog;kind=navigation');
+        $navigation->setUpdatedAt(\DateTime::createFromFormat(\DateTime::ISO8601, '2018-06-21T09:23:07Z'));
+
+        $feedNavigation = new Feed();
+        $feedNavigation->addNavigation($navigation);
+
+        $providerList[] = array(
+            new \SimpleXMLElement(<<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<entry 
+    xmlns:opds="http://opds-spec.org/2010/catalog"
+    xmlns:thr="http://purl.org/syndication/thread/1.0">
+    <title>Non-Fiction</title>
+    <id>http://www.feedbooks.com/store/categories/FBNFC000000.atom</id>
+    <link type="application/atom+xml;profile=opds-catalog;kind=navigation" rel="subsection" href="http://www.feedbooks.com/store/categories/FBNFC000000.atom"/>
+    <updated>2018-06-21T09:23:07Z</updated>
+    <content type="text">Content here</content>
+</entry>
+XML
+            ),
+            new Feed(),
+            $feedNavigation,
+        );
+
+        return $providerList;
     }
 
     /**
@@ -631,32 +729,39 @@ XML
     <entry>
         <title>La ran&#231;on du d&#233;sir</title>
         <id>http://www.feedbooks.com/item/2707366</id>
-        <updated>2018-05-08T10:56:59Z</updated>
         <dcterms:identifier xsi:type="dcterms:URI">urn:ISBN:9782290142233</dcterms:identifier>
         <dcterms:source xsi:type="dcterms:URI">urn:ISBN:9782290142264</dcterms:source>
-        <dcterms:language>fr</dcterms:language>
-        <dcterms:publisher>J'ai Lu</dcterms:publisher>
-        <dcterms:issued>2018-04-24</dcterms:issued>
-        <dcterms:extent>384 pages</dcterms:extent>
-        <dcterms:extent>2 Mo</dcterms:extent>
         <author>
             <name>Penelope Williamson</name>
             <uri>http://www.feedbooks.com/search?query=contributor%3A%22Penelope+Williamson%22</uri>
         </author>
         <published>2018-03-30T11:08:47Z</published>
-        <summary>&#202;tre servante dans une auberge du port de Boston n&#8217;offre gu&#232;re de perspectives d&#8217;avenir. Mais Angie est pauvre et doit trouver un moyen pour survivre. Aussi d&#233;cide-t-elle de saisir sa chance lorsqu&#8217;elle tombe sur une annonce : dans le Maine, un p&#232;...</summary>
+        <updated>2018-05-08T10:56:59Z</updated>
+        <dcterms:language>fr</dcterms:language>
+        <dcterms:publisher>J'ai Lu</dcterms:publisher>
+        <dcterms:issued>2018-04-24</dcterms:issued>
+        <summary>ma description ici</summary>
+        <dcterms:extent>384 pages</dcterms:extent>
+        <dcterms:extent>2 Mo</dcterms:extent>
         <category term="FBFIC000000" scheme="http://www.feedbooks.com/categories" label="Fiction"/>
         <category term="FBFIC027000" scheme="http://www.feedbooks.com/categories" label="Litt&#233;rature sentimentale"/>
-        <category term="FBFIC027050" scheme="http://www.feedbooks.com/categories" label="Historique"/>
         <link type="text/html" title="Voir sur Feedbooks" href="http://www.feedbooks.com/item/2707366" rel="alternate"/>
         <link type="image/jpeg" href="http://covers.feedbooks.net/item/2707366.jpg?size=large&amp;t=1522400930" rel="http://opds-spec.org/image"/>
         <link type="image/jpeg" href="http://covers.feedbooks.net/item/2707366.jpg?size=large&amp;t=1522400930" rel="http://opds-spec.org/image/thumbnail"/>
+        <contributor>
+            <name>Perrine Dulac</name>
+            <uri>http://www.feedbooks.com/search?query=contributor%3A%22Perrine+Dulac%22</uri>
+        </contributor>
+        <content type="html">ma description 2 ici</content>
+        <link type="application/atom+xml;type=entry;profile=opds-catalog" rel="self" href="http://www.feedbooks.com/item/2707366.atom"/>
         <link type="text/html" rel="http://opds-spec.org/acquisition/buy" href="https://www.feedbooks.com/item/2707366/buy">
             <opds:price currencycode="EUR">5.99</opds:price>
             <opds:indirectAcquisition type="application/epub+zip"/>
         </link>
         <link type="application/epub+zip" rel="http://opds-spec.org/acquisition/sample" href="http://www.feedbooks.com/item/2707366/preview"/>
-        <link type="application/atom+xml;type=entry;profile=opds-catalog" title="Entr&#233;e compl&#232;te" rel="alternate" href="http://www.feedbooks.com/item/2707366.atom"/>
+        <link type="application/atom+xml;profile=opds-catalog;kind=navigation" title="Cat&#233;gories pour ce livre" rel="related" href="http://www.feedbooks.com/item/2707366/categories.atom"/>
+        <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" title="Dans la m&#234;me collection" rel="related" href="http://www.feedbooks.com/store/top.atom?collection=Aventures+et+Passions&amp;lang=fr"/>
+        <link type="application/atom+xml;profile=opds-catalog;kind=acquisition" title="Du m&#234;me &#233;diteur" rel="related" href="http://www.feedbooks.com/store/top.atom?lang=fr&amp;amp;publisher=J%27ai+Lu"/>
     </entry>
 </feed>
 XML
