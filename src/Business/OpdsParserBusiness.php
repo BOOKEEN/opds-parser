@@ -305,7 +305,11 @@ class OpdsParserBusiness
                     $metadata->setSource((string) $value);
                     break;
                 case 'issued':
-                    $metadata->setIssuedAt(\DateTime::createFromFormat('Y-m-d', $value));
+                    try {
+                        $metadata->setIssuedAt(\DateTime::createFromFormat('Y-m-d', $value));
+                    } catch (\Exception $e) {
+                        // nothing to do 
+                    }
                     break;
             }
         }
