@@ -1,5 +1,5 @@
 {
-    "name": "bookeen/opds-parser",
+    "name": "bookeenweb/opds-parser",
     "description": "Parse OPDS XML",
     "type": "library",
     "keywords": ["OPDS", "bookeen"],
